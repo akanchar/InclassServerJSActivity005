@@ -1,3 +1,4 @@
+
 const socket = io();
 
 //gets username and emits to the username function of socket to create a new user
@@ -13,7 +14,8 @@ document.getElementById('send-button').addEventListener('click',()=>{
 
         //adds message to your own chat window
         addMessageChat({type:'myMessage', user: username, message});
-        messageInput.value = '';
+        //clear input
+        message.value = '';
     }
 });
 document.getElementById('leave-button').addEventListener('click', () => {

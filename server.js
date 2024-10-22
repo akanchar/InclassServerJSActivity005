@@ -34,19 +34,19 @@ io.on('connection', (socket)=>{
         userList.push(newUser); 
         // lets all user know new user has joined
         io.emit('userList',userList);
-        io.emit('message', {type: 'userJoined',user: newUser});
+        io.emit('message', {type: 'userJoined',user: newUser.username, message:"Joined Chat"});
     });
 
     // emits the message to all users
     socket.on('sendMessage',(data)=>{
-        socket.broadcast.emit('message',{type:'userMessage', ...data});
+        io.broadcast.emit('message',{type:'userMessage', ...data});
     });
 
     socket.on('disconnect', ()=>{
         const index = userList.findIndex(user => user.socketID === socket.id);
         if(index!== -1){
             // splice removes that one element (user that is leaving), and puts it into its own array, [0] is that new array with leaving user
-            const leavingUser = users.splice(index,1)[0];
+            const leavingUser = userList.splice(index,1)[0];
             io.emit('userList', userList);
             io.emit('message',{type: 'userLeft', leavingUser}) 
         }
@@ -56,4 +56,4 @@ io.on('connection', (socket)=>{
 
 
 const PORT = process.env.PORT || 3000;
-Server.listen(PORT, ()=> console.log(`Server running on port ${PORT}`));
+http.listen(PORT, ()=> console.log(`Server running on port ${PORT}`));
