@@ -33,13 +33,21 @@ io.on('connection', (socket)=>{
         // adds to user list
         userList.push(newUser); 
         // lets all user know new user has joined
-        io.emit('userList',userList);
+        io.emit('userlist',{users: userList});
         io.emit('message', {type: 'userJoined',user: newUser.username, message:"Joined Chat"});
     });
 
     // emits the message to all users
     socket.on('sendMessage',(data)=>{
-        io.broadcast.emit('message',{type:'userMessage', ...data});
+    
+        
+        if (data) {
+            console.log("semding");
+            socket.broadcast.emit('message', {type:data.type, user: data.user, message:message});
+        } else {
+            console.error('Invalid message data:', data);
+        }
+        
     });
 
     socket.on('disconnect', ()=>{
@@ -47,8 +55,10 @@ io.on('connection', (socket)=>{
         if(index!== -1){
             // splice removes that one element (user that is leaving), and puts it into its own array, [0] is that new array with leaving user
             const leavingUser = userList.splice(index,1)[0];
-            io.emit('userList', userList);
-            io.emit('message',{type: 'userLeft', leavingUser}) 
+            console.log('USER LEAVING', leavingUser);
+            const name = leavingUser.username
+            io.emit('userlist', {users: userList});
+            io.emit('message',{type: 'userLeft', user: name, message: "Left Chat"}); 
         }
     });
 });
