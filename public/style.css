@@ -1,85 +1,41 @@
-body {
-    font-family: Arial, sans-serif;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    height: 100vh; /* Full height */
-}
-
 .container {
     display: flex;
-    width: 100%; /* Full width */
 }
 
 .user-list {
-    width: 250px; /* Fixed width for user list */
-    background-color: #f0f0f0; /* Background color */
+    width: 200px;
+    border-right: 1px solid #ccc;
     padding: 10px;
-    overflow-y: auto; /* Scrollable if content overflows */
-    border-right: 1px solid #ccc; /* Right border for separation */
+    overflow-y: scroll;
 }
 
-.chat-window {
-    flex: 1; /* Take remaining space */
-    display: flex;
-    flex-direction: column;
+.chat-container {
+    flex: 1;
     padding: 10px;
 }
 
-.chat-header {
-    font-size: 1.5em;
-    margin-bottom: 10px;
+#chat-window {
+    height: 300px;
+    overflow-y: scroll;
+    border: 1px solid #ccc;
+    padding: 5px;
 }
 
-.messages {
-    flex: 1; /* Take remaining space */
-    background-color: #fff; /* Chat window background */
-    border: 1px solid #ccc; /* Border for chat area */
-    padding: 10px;
-    overflow-y: auto; /* Scrollable if messages overflow */
+.my-message {
+    background-color: #dcf8c6;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
 }
 
-input[type="text"] {
-    width: 80%; /* Width for the input */
-    padding: 10px;
+.other-message {
+    background-color: #f1f0f0;
+    padding: 5px;
+    margin: 5px;
+    border-radius: 5px;
 }
 
-button {
-    padding: 10px;
-    margin-left: 5px; /* Space between buttons */
-}
-
-/* Profile picture styles */
-.profile-picture {
-    width: 30px; 
-    height: 30px; 
-    border-radius: 50%; 
-    margin-right: 5px; 
-    vertical-align: middle; 
-}
-
-/* Message styles */
-.message {
-    margin: 5px 0;
-}
-
-.message.you {
-    text-align: right;
-    color: blue; 
-}
-
-.message.other {
-    text-align: left;
-    color: green; 
-}
-
-.user-item {
-    cursor: pointer; /* Change cursor to pointer on hover */
-    padding: 5px; /* Padding for each user */
-    display: flex; /* Flex display to align image and text */
-    align-items: center; /* Center vertically */
-}
-
-.user-item:hover {
-    background-color: #ddd; /* Highlight on hover */
+.system-message {
+    color: #777;
+    margin: 5px;
 }

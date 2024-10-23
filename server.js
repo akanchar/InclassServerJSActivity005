@@ -6,53 +6,55 @@ const app = express();
 const server = http.createServer(app);
 const io = socketIo(server);
 
-// Serve static files from the public directory
-app.use(express.static('public'));
+let users = []; // Store user objects
 
-// User class to store user details
 class User {
-    constructor(name) {
+    constructor(name, socketId) {
         this.name = name;
-        this.randomNumber = Math.floor(Math.random() * 100) + 1;
-        this.profilePicture = this.randomNumber % 2 === 0
-            ? `https://randomuser.me/api/portraits/men/${this.randomNumber}.jpg`
-            : `https://randomuser.me/api/portraits/women/${this.randomNumber}.jpg`;
+        this.socketId = socketId;
     }
 }
 
-let users = [];
+// Serve the static files
+app.use(express.static('public'));
 
-// Socket.io connection
+// Handle new user connection
 io.on('connection', (socket) => {
-    console.log('A user connected');
-
-    // Handle new user
     socket.on('new user', (username) => {
-        const user = new User(username);
-        user.socketId = socket.id; // Store socket ID
-        users.push(user);
+        const newUser = new User(username, socket.id);
+        users.push(newUser);
+        socket.username = username; // Save the username to the socket
+
+        // Broadcast user joined to everyone
+        io.emit('user joined', username);
         io.emit('update user list', users);
-        socket.broadcast.emit('user joined', user.name);
     });
 
     // Handle chat message
-    socket.on('chat message', (chatMessage) => {
-        socket.broadcast.emit('chat message', chatMessage);
+    socket.on('chat message', (chatData) => {
+        const { message, to } = chatData;
+        const recipient = users.find(user => user.name === to);
+        if (recipient) {
+            io.to(recipient.socketId).emit('chat message', { message, from: socket.username });
+        }
     });
 
-    // Handle user disconnect
+    // Handle user leaving
+    socket.on('leave chat', (username) => {
+        users = users.filter(user => user.name !== username);
+        io.emit('user left', username);
+        io.emit('update user list', users);
+    });
+
+    // Handle disconnection
     socket.on('disconnect', () => {
-        const userIndex = users.findIndex(u => u.socketId === socket.id);
-        if (userIndex !== -1) {
-            const user = users[userIndex];
-            users.splice(userIndex, 1);
-            io.emit('update user list', users);
-            socket.broadcast.emit('user left', user.name);
-        }
+        users = users.filter(user => user.socketId !== socket.id);
+        io.emit('user left', socket.username);
+        io.emit('update user list', users);
     });
 });
 
-// Start the server
+// Start server
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
