@@ -26,6 +26,7 @@ document.getElementById('send-button').addEventListener('click',(e)=>{
 document.getElementById('leave-button').addEventListener('click', () => {
     socket.disconnect();
     document.querySelector('.chat-container').style.display = 'none';
+    alert("You have left the chat.");
     
 });
 
@@ -53,13 +54,22 @@ function addMessageChat({type, user, message}){
 function updateUserList({users}){
     console.log(users);
     const list = document.getElementById('user-list');
+    const head = document.createElement('h3');
+    head.innerText = "Users";
     //reset the list to empty
     list.innerHTML = '';
+    list.appendChild(head);
 
     
     users.forEach(user => {
         userItem = document.createElement('img');
-        userItem.src = `https:randomuser.me/api/portraits/men/${user.number}.jpg`;
+        if(user.number%2==0){ // if random number is even then it will produce a man pic, otherwise woman
+            userItem.src = `https:randomuser.me/api/portraits/men/${user.number}.jpg`;
+        }
+        else{
+            userItem.src = `https:randomuser.me/api/portraits/women/${user.number}.jpg`;
+        }
+        
         list.appendChild(userItem);
     });
 }
