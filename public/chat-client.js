@@ -1,75 +1,82 @@
 const socket = io();
 
-const userList = document.getElementById('user-list');
-const chatWindow = document.getElementById('chat-window');
-const chatInput = document.getElementById('chat-input');
-const sendMessageButton = document.getElementById('send-message');
-const chatWithHeader = document.getElementById('chat-with');
-const leaveChatButton = document.getElementById('leave-chat');
+let currentUser;
 
-let currentChatUser = null;
+// Prompt for username
+while (!currentUser) {
+    currentUser = prompt("Enter your name:");
+}
 
-// Function to update user list
-function updateUserList(users) {
-    userList.innerHTML = '';
-    users.forEach(user => {
-        const li = document.createElement('li');
-        li.textContent = user.name;
-        li.onclick = () => selectUser(user); // Attach click event
-        userList.appendChild(li);
+// Emit new user
+socket.emit('new user', currentUser);
+
+// Handle user list update
+socket.on('update user list', (userList) => {
+    const userContainer = document.getElementById('user-list');
+    userContainer.innerHTML = '<h2>Users Online</h2>'; // Clear current list
+    userList.forEach(user => {
+        const userItem = document.createElement('div');
+        userItem.className = 'user-item';
+        userItem.innerHTML = `<img class="profile-picture" src="${user.profilePicture}" alt="${user.name}"> ${user.name}`;
+        userContainer.appendChild(userItem);
     });
-}
-
-// Function to select a user for chat
-function selectUser(user) {
-    currentChatUser = user;
-    chatWithHeader.textContent = `Chatting with ${user.name}`;
-    chatWindow.innerHTML = ''; // Clear the chat window
-}
-
-// Function to send a message
-sendMessageButton.onclick = () => {
-    const message = chatInput.value;
-    if (message && currentChatUser) {
-        // Display the message in the chat window
-        chatWindow.innerHTML += `<div class="my-message">${message}</div>`;
-        // Send message to the server
-        socket.emit('chat message', { message, to: currentChatUser.name });
-        chatInput.value = ''; // Clear input
-    }
-};
-
-// Receive chat messages from the server
-socket.on('chat message', (data) => {
-    if (currentChatUser && data.from === currentChatUser.name) {
-        chatWindow.innerHTML += `<div class="other-message">${data.from}: ${data.message}</div>`;
-    }
 });
 
-// Update user list when a new user joins
-socket.on('update user list', (users) => {
-    updateUserList(users);
-});
-
-// Handle user join/leave messages
+// Handle user joined message
 socket.on('user joined', (username) => {
-    chatWindow.innerHTML += `<div class="system-message">${username} has joined the chat.</div>`;
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message user-joined';
+    messageElement.innerText = `${username} has joined the chat`;
+    document.getElementById('messages').appendChild(messageElement);
 });
 
-socket.on('user left', (username) => {
-    chatWindow.innerHTML += `<div class="system-message">${username} has left the chat.</div>`;
+// Handle chat messages
+socket.on('chat message', (chatMessage) => {
+    const messageElement = document.createElement('div');
+    
+    if (chatMessage.user !== currentUser) {
+        messageElement.className = 'message other';
+    } 
+
+    messageElement.innerHTML = `<strong>${chatMessage.user}</strong>: ${chatMessage.message} <em>(${chatMessage.time})</em>`;
+    document.getElementById('messages').appendChild(messageElement);
 });
 
-// Leave chat functionality
-leaveChatButton.onclick = () => {
-    if (currentChatUser) {
-        socket.emit('leave chat', currentChatUser.name); // Notify server
-        currentChatUser = null;
-        chatWithHeader.textContent = 'Select a user to chat';
-        chatWindow.innerHTML = ''; // Clear the chat window
+// Send chat message
+document.getElementById('send-button').addEventListener('click', () => {
+    const messageInput = document.getElementById('message-input');
+    const message = messageInput.value;
+
+    if (message) {
+        const chatMessage = {
+            user: currentUser,
+            message: message,
+            time: new Date().toLocaleTimeString()
+        };
+        const messageElement = document.createElement('div');
+        messageElement.className = 'message you'; // Add class for the current user's message
+        messageElement.innerHTML = `<strong>${chatMessage.user}</strong>: ${chatMessage.message} <em>(${chatMessage.time})</em>`;
+        document.getElementById('messages').appendChild(messageElement);
+
+        socket.emit('chat message', chatMessage);
+        messageInput.value = ''; // Clear input
     }
-};
+});
 
-// On new user connection
-const username = prompt('Enter your username:');
-socket.emit('new user', username);
+// Leave chat
+document.getElementById('leave-button').addEventListener('click', () => {
+    socket.emit('user left', currentUser); // Notify server that the user is leaving
+    socket.disconnect(); // Disconnect from the server
+    document.getElementById('messages').innerHTML = ''; // Clear messages
+    document.getElementById('message-input').disabled = true; // Disable input
+    document.getElementById('send-button').disabled = true; // Disable send button
+    document.getElementById('leave-button').disabled = true; // Disable leave button
+});
+
+// Handle user left message
+socket.on('user left', (username) => {
+    const messageElement = document.createElement('div');
+    messageElement.className = 'message user-left';
+    messageElement.innerText = `${username} has left the chat`;
+    document.getElementById('messages').appendChild(messageElement);
+});

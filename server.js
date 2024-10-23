@@ -26,8 +26,8 @@ io.on('connection', (socket) => {
         socket.username = username; // Save the username to the socket
 
         // Broadcast user joined to everyone
-        io.emit('user joined', username);
-        io.emit('update user list', users);
+        socket.broadcast.emit('user joined', username); // Notify others
+        io.emit('update user list', users); // Update user list for all
     });
 
     // Handle chat message
@@ -40,17 +40,22 @@ io.on('connection', (socket) => {
     });
 
     // Handle user leaving
-    socket.on('leave chat', (username) => {
-        users = users.filter(user => user.name !== username);
-        io.emit('user left', username);
-        io.emit('update user list', users);
+    socket.on('leave chat', () => {
+        // Remove user from the list
+        users = users.filter(user => user.socketId !== socket.id);
+        
+        // Broadcast that the user left
+        socket.broadcast.emit('user left', socket.username);
+        io.emit('update user list', users); // Update user list for all
     });
 
     // Handle disconnection
     socket.on('disconnect', () => {
         users = users.filter(user => user.socketId !== socket.id);
-        io.emit('user left', socket.username);
-        io.emit('update user list', users);
+        if (socket.username) {
+            socket.broadcast.emit('user left', socket.username);
+            io.emit('update user list', users); // Update user list for all
+        }
     });
 });
 
