@@ -39,11 +39,11 @@ io.on('connection', (socket)=>{
 
     // emits the message to all users
     socket.on('sendMessage',(data)=>{
-    
+        console.log("Data received:", data); // Log the data for debugging
         
-        if (data) {
-            console.log("semding");
-            socket.broadcast.emit('message', {type:data.type, user: data.user, message:message});
+        if (data&&data.user&&data.message) {
+            
+            socket.broadcast.emit('message', {type:data.type, user: data.user, message:data.message});
         } else {
             console.error('Invalid message data:', data);
         }

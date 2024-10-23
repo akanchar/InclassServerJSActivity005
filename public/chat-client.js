@@ -55,6 +55,7 @@ function updateUserList({users}){
     const list = document.getElementById('user-list');
     //reset the list to empty
     list.innerHTML = '';
+
     
     users.forEach(user => {
         userItem = document.createElement('img');
