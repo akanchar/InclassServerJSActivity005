@@ -1,33 +1,38 @@
 <!DOCTYPE html>
-<html>
-    <head>
-
-    </head>
-    <body>
-        <div class="container">
-            <div id="chats"">
-                <p> DIRECT MESSAGES </p>
-                <div id="users">
-
-                </div>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Client</title>
+    <link rel="stylesheet" href="style.css"> <!-- Optional: Link to a CSS file for styling -->
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="chat-client.js" defer></script> <!-- Load the chat-client.js -->
+</head>
+<body>
+    <div class="container">
+        <div id="chats">
+            <p>DIRECT MESSAGES</p>
+            <div id="users"></div>
+        </div>
+        <div id="curChat">
+            <div id="chatHead">
+                <h1>Chat</h1>
+                <button id="leave">LEAVE</button>
             </div>
-            <div id="curChat">
-                <div id="chatHead">
-                    <h1>Chat </h1>
-                    <button id="leave">LEAVE</button>
-                </div>
-                <div id="messages" >
-
-                </div>
-                <div id="typeArea">
-                    <form>
-                        <input  type="text">
-
-                    </form>
+            <div id="messages"></div>
+            <div id="typeArea">
+                <form id="messageForm">
+                    <input type="text" id="messageInput" placeholder="Type your message...">
                     <button id="send">SEND</button>
-                </div>
+                </form>
             </div>
         </div>
-        
-    </body>
+        <div>
+            <form id="usernameForm">
+                <input type="text" id="usernameInput" placeholder="Enter your username" required>
+                <button type="submit">Join Chat</button>
+            </form>
+        </div>
+    </div>
+</body>
 </html>
