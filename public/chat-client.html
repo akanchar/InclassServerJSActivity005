@@ -1,21 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Client</title>
-    <link rel="stylesheet" href="/style.css">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Basic Chat Client</title>
 </head>
 <body>
-    <h1>Simple Chat Client</h1>
-    
-    <div id="chat">
-        <!-- Messages will be appended here by chat-client.js -->
-    </div>
-    
-    <input type="text" id="messageInput" placeholder="Type your message">
-    <button id="sendButton">Send</button>
+  <div id="chat-container">
+    <!-- List of users in the chat -->
+    <div id="user-list"></div>
 
-    <script src="/chat-client.js"></script>
+    <!-- Chat window for user interaction -->
+    <div id="chat-window">
+      <input id="user-name" placeholder="Enter your name">
+      <button id="join-chat">Join Chat</button>
+      <button id="leave-chat">Leave Chat</button>
+    </div>
+  </div>
+
+  <script src="chat-client.js"></script>
 </body>
 </html>
