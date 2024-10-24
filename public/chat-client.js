@@ -1,13 +1,20 @@
+// chat-client.js
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     let currentUser;
     const chatContainer = document.getElementById('chat-container');
+    const currentUserInfoDiv = document.createElement('div');
+    currentUserInfoDiv.id = 'current-user-info';
+    chatContainer.appendChild(currentUserInfoDiv);
+    const mainContentDiv = document.createElement('div');
+    mainContentDiv.id = 'main-content';
+    chatContainer.appendChild(mainContentDiv);
     const userListDiv = document.createElement('div');
     userListDiv.id = 'user-list';
-    chatContainer.appendChild(userListDiv);
+    mainContentDiv.appendChild(userListDiv);
     const chatPanel = document.createElement('div');
     chatPanel.id = 'chat-panel';
-    chatContainer.appendChild(chatPanel);
+    mainContentDiv.appendChild(chatPanel);
     const messagesDiv = document.createElement('div');
     messagesDiv.id = 'messages';
     chatPanel.appendChild(messagesDiv);
@@ -46,6 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     socket.on('welcome', (data) => {
         currentUser = data.user;
         updateUserList(data.users);
+        addCurrentUserInfo(currentUser);
     });
     socket.on('user joined', (data) => {
         addSystemMessage(`${data.user.name} has joined the chat.`);
@@ -103,5 +111,23 @@ document.addEventListener('DOMContentLoaded', () => {
             userDiv.appendChild(nameSpan);
             userListDiv.appendChild(userDiv);
         });
+    }
+    function createButton(id, text, onClick) {
+        const button = document.createElement('button');
+        button.id = id;
+        button.textContent = text;
+        button.addEventListener('click', onClick);
+        return button;
+    }
+    function addCurrentUserInfo(user) {
+        currentUserInfoDiv.innerHTML = '';
+        const userImg = document.createElement('img');
+        userImg.src = user.profilePictureUrl;
+        userImg.alt = user.name;
+        const userName = document.createElement('span');
+        userName.classList.add('user-name');
+        userName.textContent = user.name;
+        currentUserInfoDiv.appendChild(userImg);
+        currentUserInfoDiv.appendChild(userName);
     }
 });
