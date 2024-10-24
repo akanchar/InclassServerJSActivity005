@@ -48,16 +48,16 @@ document.addEventListener('DOMContentLoaded', () => {
         updateUserList(data.users);
     });
     socket.on('user joined', (data) => {
-        addSystemMessage(${data.user.name} has joined the chat.);
+        addSystemMessage(`${data.user.name} has joined the chat.`);
         updateUserList(data.users);
     });
     socket.on('user left', (data) => {
-        addSystemMessage(${data.user.name} has left the chat., 'leave-message');
+        addSystemMessage(`${data.user.name} has left the chat.`, 'leave-message');
         updateUserList(data.users);
     });
     socket.on('chat message', (data) => {
-        let className = data.user.id === currentUser.id ? 'own-message' : 'other-message';
-        let displayName = className === 'own-message' ? 'You' : data.user.name;
+        const className = data.user.id === currentUser.id ? 'own-message' : 'other-message';
+        const displayName = className === 'own-message' ? 'You' : data.user.name;
         addMessage(displayName, data.message, data.time, className, data.user.profilePictureUrl);
     });
     function addMessage(sender, message, time, className, profilePictureUrl) {
@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         const senderSpan = document.createElement('span');
         senderSpan.classList.add('sender');
-        senderSpan.textContent = ${sender} [${time}]: ;
+        senderSpan.textContent = `${sender} [${time}]: `;
         const messageSpan = document.createElement('span');
         messageSpan.classList.add('text');
         messageSpan.textContent = message;
