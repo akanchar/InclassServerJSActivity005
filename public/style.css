@@ -1,0 +1,29 @@
+#chat-container {
+    display: flex;
+  }
+  
+  #user-list {
+    width: 20%;
+    background-color: #f0f0f0;
+    padding: 10px;
+  }
+  
+  #chat-window {
+    width: 80%;
+    padding: 10px;
+  }
+  
+  .own-message {
+    background-color: #d1ffd6;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  
+  .other-message {
+    background-color: #f0d1d1;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 5px;
+  }
+  

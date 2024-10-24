@@ -1,43 +1,69 @@
-// Elements
-const userList = document.getElementById('user-list'); // Get the user list container element
-const joinButton = document.getElementById('join-chat'); // Get the Join Chat button element
-const leaveButton = document.getElementById('leave-chat'); // Get the Leave Chat button element
-const userNameInput = document.getElementById('user-name'); // Get the input element for the user's name
+const socket = io();
+const userList = document.getElementById('user-list');
+const messageBox = document.getElementById('messages');
+const joinButton = document.getElementById('join-chat');
+const leaveButton = document.getElementById('leave-chat');
+const userNameInput = document.getElementById('user-name');
+const sendButton = document.getElementById('send-message');
+const messageInput = document.getElementById('message');
 
-// Function to update the user list
 function updateUserList(users) {
-  userList.innerHTML = '';  // Clear existing user list
-  users.forEach(user => { // Iterate through each user in the list
-    const userElement = document.createElement('div'); // Create a new div for each user
-    userElement.textContent = `${user.name} (ID: ${user.randomNumber})`; // Set the text content to the user's name and ID
-    userList.appendChild(userElement); // Append the user element to the user list container
+  userList.innerHTML = '';
+  users.forEach(user => {
+    const userElement = document.createElement('div');
+    const profilePic = document.createElement('img');
+    profilePic.src = user.randomNumber % 2 === 0 ? 'https://randomuser.me/api/portraits/men/90.jpg' : 'https://randomuser.me/api/portraits/women/45.jpg';
+    userElement.textContent = `${user.name}`;
+    userElement.appendChild(profilePic);
+    userList.appendChild(userElement);
   });
 }
 
-// Join chat (send POST request to add user)
-joinButton.addEventListener('click', () => { // Add click event listener to the Join button
-  const userName = userNameInput.value; // Get the value from the username input
-  if (userName) { // Check if the username is not empty
-    fetch('/add-user', { // Send a POST request to add the user
-      method: 'POST', // Specify the request method as POST
-      headers: { 'Content-Type': 'application/json' }, // Set the content type to JSON
-      body: JSON.stringify({ name: userName }) // Convert the username to JSON format for the request body
-    })
-    .then(response => response.json()) // Parse the JSON response from the server
-    .then(updateUserList); // Update the user list with the new data from the server
+joinButton.addEventListener('click', () => {
+  const userName = userNameInput.value;
+  if (userName) {
+    fetch('/add-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: userName })
+    }).then(response => response.json())
+      .then(updateUserList);
   }
 });
 
-// Leave chat (send POST request to remove user)
-leaveButton.addEventListener('click', () => { // Add click event listener to the Leave button
-  const userName = userNameInput.value; // Get the value from the username input
-  if (userName) { // Check if the username is not empty
-    fetch('/remove-user', { // Send a POST request to remove the user
-      method: 'POST', // Specify the request method as POST
-      headers: { 'Content-Type': 'application/json' }, // Set the content type to JSON
-      body: JSON.stringify({ name: userName }) // Convert the username to JSON format for the request body
-    })
-    .then(response => response.json()) // Parse the JSON response from the server
-    .then(updateUserList); // Update the user list with the new data from the server
+leaveButton.addEventListener('click', () => {
+  const userName = userNameInput.value;
+  if (userName) {
+    fetch('/remove-user', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name: userName })
+    }).then(response => response.json())
+      .then(updateUserList);
   }
 });
+
+sendButton.addEventListener('click', () => {
+  const message = messageInput.value;
+  const userName = userNameInput.value;
+  if (message) {
+    const chatMessage = { user: userName, message: message, time: new Date().toLocaleTimeString() };
+    displayMessage(chatMessage, true);
+    socket.emit('chat-message', chatMessage);
+  }
+});
+
+socket.on('chat-message', (data) => {
+  displayMessage(data, false);
+});
+
+socket.on('user-updated', (users) => {
+  updateUserList(users);
+});
+
+function displayMessage(data, isOwnMessage) {
+  const messageElement = document.createElement('div');
+  messageElement.textContent = `${data.user}: ${data.message} (${data.time})`;
+  messageElement.classList.add(isOwnMessage ? 'own-message' : 'other-message');
+  messageBox.appendChild(messageElement);
+}

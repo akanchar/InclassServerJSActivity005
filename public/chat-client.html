@@ -3,21 +3,23 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Basic Chat Client</title>
+  <title>Chat Client</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
   <div id="chat-container">
-    <!-- List of users in the chat -->
     <div id="user-list"></div>
-
-    <!-- Chat window for user interaction -->
     <div id="chat-window">
       <input id="user-name" placeholder="Enter your name">
       <button id="join-chat">Join Chat</button>
       <button id="leave-chat">Leave Chat</button>
+      <div id="messages"></div>
+      <input id="message" placeholder="Type a message">
+      <button id="send-message">Send</button>
     </div>
   </div>
 
+  <script src="/socket.io/socket.io.js"></script>
   <script src="chat-client.js"></script>
 </body>
 </html>
