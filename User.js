@@ -1,32 +1,44 @@
 class User {
+    static BASE_API_URL = 'https://randomuser.me/api/';
+    static BASE_PICTURE_URL = 'https://randomuser.me/api/portraits/';
+
     constructor(gender, name) {
         this.name = name;
-        this.id = Math.floor(Math.random() * 100);
-        this.gender = gender === 'male' ? 'men' : 'women';
+        this.id = User.generateRandomId();
+        this.gender = gender;
+    }
+
+    static generateRandomId() {
+        return Math.floor(Math.random() * 100);
+    }
+
+    static formatGender(gender) {
+        return gender === 'male' ? 'men' : 'women';
     }
 
     getProfilePictureUrl() {
-        return `https://randomuser.me/api/portraits/${this.gender}/${this.id}.jpg`;
+        return `${User.BASE_PICTURE_URL}${this.gender}/${this.id}.jpg`;
+    }
+
+    static async fetchUserData(gender) {
+        const fetch = (await import('node-fetch')).default;
+        const response = await fetch(`${User.BASE_API_URL}?inc=gender,name&gender=${gender}&nat=US`);
+        const data = await response.json();
+        return data.results ? data.results[0] : null;
     }
 
     static async createRandomUser() {
         const gender = Math.random() < 0.5 ? 'male' : 'female';
         try {
-            const fetch = (await import('node-fetch')).default;
-            const response = await fetch(`https://randomuser.me/api/?inc=gender,name,nat&gender=${gender}&nat=US`);
-            const data = await response.json();
-            if (data.results && data.results.length > 0) {
-                const userName = data.results[0]?.name?.first;
-                if (!userName) {
-                    throw new Error('Could not retrieve user name from API');
-                }
-                return new User(gender, userName);
+            const userData = await User.fetchUserData(gender);
+            if (userData && userData.name && userData.name.first) {
+                return new User(User.formatGender(gender), userData.name.first);
             } else {
-                throw new Error('No user data returned from the API');
+                throw new Error('Invalid user data from API');
             }
         } catch (error) {
             console.error('Error fetching user data:', error.message);
-            return new User(gender, 'Guest');
+            return new User(User.formatGender(gender), 'Guest');
         }
     }
 
