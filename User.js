@@ -6,14 +6,14 @@ class User {
     }
 
     getProfilePictureUrl() {
-        return https://randomuser.me/api/portraits/${this.gender}/${this.id}.jpg;
+        return `https://randomuser.me/api/portraits/${this.gender}/${this.id}.jpg`;
     }
 
     static async createRandomUser() {
         const gender = Math.random() < 0.5 ? 'male' : 'female';
         try {
             const fetch = (await import('node-fetch')).default;
-            const response = await fetch(https://randomuser.me/api/?inc=gender,name,nat&gender=${gender}&nat=US);
+            const response = await fetch(`https://randomuser.me/api/?inc=gender,name,nat&gender=${gender}&nat=US`);
             const data = await response.json();
             if (data.results && data.results.length > 0) {
                 const userName = data.results[0]?.name?.first;
