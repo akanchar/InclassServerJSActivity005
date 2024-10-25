@@ -1,14 +1,19 @@
 document.addEventListener('DOMContentLoaded', () => {
     const socket = io();
     let currentUser;
+    let hasLeft = false;
+
 
     // Constants
     const chatContainer = document.getElementById('chat-container');
     const currentUserInfoDiv = createAndAppendElement('div', 'current-user-info', chatContainer);
     const mainContentDiv = createAndAppendElement('div', 'main-content', chatContainer);
     const userListDiv = createAndAppendElement('div', 'user-list', mainContentDiv);
+    userListDiv.classList.add('user-list');
     const chatPanel = createAndAppendElement('div', 'chat-panel', mainContentDiv);
+    chatPanel.classList.add('chat-panel');
     const messagesDiv = createAndAppendElement('div', 'messages', chatPanel);
+    messagesDiv.classList.add('chat-inner');
     const inputDiv = createAndAppendElement('div', 'input-div', chatPanel);
 
     // Message Input
@@ -40,16 +45,18 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     socket.on('user left', (data) => {
-        addSystemMessage(`${data.user.name} has left the chat.`, 'leave-message');
-        updateUserList(data.users);
+        if (!hasLeft) {
+            addSystemMessage(`${data.user.name} has left the chat.`, 'leave-message');
+            updateUserList(data.users);
+        }
     });
 
     socket.on('chat message', (data) => {
-        const className = data.user.id === currentUser.id ? 'own-message' : 'other-message';
-        const displayName = className === 'own-message' ? 'You' : data.user.name;
+        const className = data.user.id === currentUser.id ? 'self-message' : 'other-message';
+        const displayName = className === 'self-message' ? 'You' : data.user.name;
         appendMessage(displayName, data.message, data.time, className, data.user.profilePictureUrl);
     });
-
+    
     function sendMessage() {
         const msg = messageInput.value;
         if (msg) {
@@ -60,10 +67,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function confirmAndLeaveChat() {
         const leaveConfirmed = window.confirm('You have left the chat. Click OK to confirm.');
-        if (leaveConfirmed) {
-            socket.emit('leave');
-            chatContainer.style.display = 'none';
-        }
+            hasLeft = true;  
+            socket.emit('left-confirmed', currentUser);  
+            chatContainer.style.display = 'none';  
     }
 
     function createAndAppendElement(tag, id, parent) {
@@ -88,11 +94,22 @@ document.addEventListener('DOMContentLoaded', () => {
         input.placeholder = placeholder;
         return input;
     }
-
     function appendMessage(sender, message, time, className, profilePictureUrl) {
+        const messageContainer = document.createElement('div');
+        messageContainer.classList.add('message-container');  // Wrap the message
+        
+        // Create a small element for the time above the message
+        const timeDiv = document.createElement('div');
+        timeDiv.classList.add('message-time', className === 'self-message' ? 'time-right' : 'time-left');  // Correct alignment
+        
+        // Format the time to show hours and minutes
+        const date = new Date(time);
+        const formattedTime = isNaN(date.getTime()) ? new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        timeDiv.textContent = formattedTime;  // Set the time text
+        
         const messageDiv = document.createElement('div');
-        messageDiv.classList.add('message', className);
-
+        messageDiv.classList.add('chat-bubble', className);  // Apply the correct bubble class
+        
         if (profilePictureUrl) {
             const img = document.createElement('img');
             img.src = profilePictureUrl;
@@ -100,18 +117,22 @@ document.addEventListener('DOMContentLoaded', () => {
             img.classList.add('user-img');
             messageDiv.appendChild(img);
         }
-
+    
         const senderSpan = document.createElement('span');
         senderSpan.classList.add('sender');
-        senderSpan.textContent = `${sender} [${time}]: `;
+        senderSpan.textContent = `${sender}: `;
         messageDiv.appendChild(senderSpan);
-
+        
         const messageSpan = document.createElement('span');
         messageSpan.classList.add('text');
         messageSpan.textContent = message;
         messageDiv.appendChild(messageSpan);
-
-        messagesDiv.appendChild(messageDiv);
+        
+        // Append the time and message to the container
+        messageContainer.appendChild(timeDiv);
+        messageContainer.appendChild(messageDiv);
+        messagesDiv.appendChild(messageContainer);
+        
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
     }
 

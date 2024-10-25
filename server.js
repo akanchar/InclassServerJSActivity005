@@ -14,8 +14,8 @@ const PUBLIC_DIR = 'public';
 app.use(express.static(PUBLIC_DIR));
 
 const sendUserList = (socket, event, currentUser) => {
-    const userData = currentUser.toJSON();
-    const allUsersData = users.map((user) => user.toJSON());
+    const userData = currentUser.toJSON ? currentUser.toJSON() : currentUser;
+    const allUsersData = users.map((user) => user.toJSON ? user.toJSON() : user);
     socket.emit(event, {
         user: userData,
         users: allUsersData,
@@ -23,8 +23,8 @@ const sendUserList = (socket, event, currentUser) => {
 };
 
 const broadcastUserList = (socket, event, currentUser) => {
-    const userData = currentUser.toJSON();
-    const allUsersData = users.map((user) => user.toJSON());
+    const userData = currentUser.toJSON ? currentUser.toJSON() : currentUser;
+    const allUsersData = users.map((user) => user.toJSON ? user.toJSON() : user);
     socket.broadcast.emit(event, {
         user: userData,
         users: allUsersData,
@@ -57,13 +57,20 @@ io.on('connection', (socket) => {
         console.log(`${user.name} has left the chat.`);
     };
 
-    socket.on('left-confirmed', (user) => handleUserLeft(user));
-
-    socket.on('disconnect', () => {
-        if (currentUser) {
-            handleUserLeft(currentUser);
+    socket.on('left-confirmed', (user) => {
+        if (user && currentUser) {
+            handleUserLeft(currentUser);  
+            console.log(`${currentUser.name} has left the chat.`);
+            currentUser = null;  
         }
-        console.log(`${currentUser.name} disconnected.`);
+    });
+    
+    socket.on('disconnect', () => {
+        if (currentUser) {  
+            handleUserLeft(currentUser);
+            console.log(`${currentUser.name} disconnected.`);
+            currentUser = null;
+        }
     });
 });
 
