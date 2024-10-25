@@ -53,25 +53,37 @@ function addMessageChat({type, user, message}){
 }
 
 function updateUserList({users}){
-    console.log(users);
     const list = document.getElementById('user-list');
-    const head = document.createElement('h3');
-    head.innerText = "Users";
-    //reset the list to empty
-    list.innerHTML = '';
-    list.appendChild(head);
+    list.innerHTML = ''; // Clear the current list
 
-    
     users.forEach(user => {
-        userItem = document.createElement('img');
-        if(user.number%2==0){ // if random number is even then it will produce a man pic, otherwise woman
-            userItem.src = `https:randomuser.me/api/portraits/men/${user.number}.jpg`;
-        }
-        else{
-            userItem.src = `https:randomuser.me/api/portraits/women/${user.number}.jpg`;
-        }
+        const userDiv = document.createElement('div');
+        userDiv.classList.add('user-item');
         
-        list.appendChild(userItem);
+        // Create the profile picture
+        const userPic = document.createElement('img');
+        if (user.number % 2 === 0) {
+            userPic.src = `https://randomuser.me/api/portraits/men/${user.number}.jpg`;
+        } else {
+            userPic.src = `https://randomuser.me/api/portraits/women/${user.number}.jpg`;
+        }
+        userPic.classList.add('user-pic');
+        
+        // Create the user's name and status
+        const userName = document.createElement('span');
+        userName.textContent = user.username;
+        
+        const userStatus = document.createElement('span');
+        userStatus.classList.add(user.online ? 'online' : 'offline');
+        userStatus.textContent = user.online ? 'Online' : 'Offline';
+        
+        // Append the profile picture, name, and status to the userDiv
+        userDiv.appendChild(userPic);
+        userDiv.appendChild(userName);
+        userDiv.appendChild(userStatus);
+        
+        // Append the userDiv to the user list
+        list.appendChild(userDiv);
     });
 }
 

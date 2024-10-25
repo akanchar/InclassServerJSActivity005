@@ -13,12 +13,32 @@
     border-right: 1px solid #ccc;
 }
 
-.user-list img {
-    display: block;
-    width: 50px;
-    height: 50px;
+.user-item {
+    display: flex;
+    align-items: center;
     margin-bottom: 10px;
+}
+
+.user-pic {
+    width: 40px;
+    height: 40px;
+    margin-right: 10px;
     border-radius: 50%;
+}
+
+.user-item span {
+    font-size: 16px;
+    margin-left: 5px;
+}
+
+.online {
+    color: green;
+    font-weight: bold;
+}
+
+.offline {
+    color: red;
+    font-weight: bold;
 }
 
 /* Chat Window Styles */
@@ -44,17 +64,17 @@
 }
 
 #messages li.myMessage {
-    background-color: #d4edda;
+    background-color: #ffeb3b;
     text-align: right;
 }
 
-#messages li.userMessage {
-    background-color: #f8d7da;
+#messages li.otherUser {
+    background-color: #81c784;
     text-align: left;
 }
 
 #messages li.userJoined {
-    background-color: #cce5ff;
+    background-color: #e0e0e0;
     font-style: italic;
     text-align: center;
 }

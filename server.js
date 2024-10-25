@@ -10,6 +10,7 @@ class UserClass {
     constructor (username){
         this.username = username
         this.number = Math.floor(Math.random()*100)+1; 
+        this.online = true;
     }
 }
 
