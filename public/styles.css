@@ -1,0 +1,97 @@
+/* Chat container styles */
+.chat-container {
+    display: flex;
+    height: 100vh;
+    background-color: #f4f4f4;
+}
+
+/* User List Styles */
+.user-list {
+    width: 25%;
+    background-color: #d1e7ff;
+    padding: 10px;
+    border-right: 1px solid #ccc;
+}
+
+.user-list img {
+    display: block;
+    width: 50px;
+    height: 50px;
+    margin-bottom: 10px;
+    border-radius: 50%;
+}
+
+/* Chat Window Styles */
+.chat-window {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    border-left: 1px solid #ccc;
+}
+
+#messages {
+    flex: 1;
+    list-style: none;
+    padding: 10px;
+    overflow-y: auto;
+}
+
+#messages li {
+    padding: 10px;
+    margin-bottom: 10px;
+    border-radius: 10px;
+}
+
+#messages li.myMessage {
+    background-color: #d4edda;
+    text-align: right;
+}
+
+#messages li.userMessage {
+    background-color: #f8d7da;
+    text-align: left;
+}
+
+#messages li.userJoined {
+    background-color: #cce5ff;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Chat input styles */
+.chat-input {
+    display: flex;
+    padding: 10px;
+    background-color: #f4f4f4;
+    border-top: 1px solid #ccc;
+}
+
+#entry {
+    flex-grow: 1;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+button {
+    margin-left: 10px;
+    padding: 10px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+#leave-button {
+    background-color: red;
+}
+
+#leave-button:hover {
+    background-color: darkred;
+}

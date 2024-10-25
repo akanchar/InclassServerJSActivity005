@@ -14,7 +14,7 @@ class UserClass {
 }
 
 //handle requests for static resources
-app.use("/static", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 // recieves root get request, send the chat client page
 app.get("/", (req,res)=>{

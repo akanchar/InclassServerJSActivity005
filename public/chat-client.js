@@ -49,6 +49,7 @@ function addMessageChat({type, user, message}){
     messageLine.innerHTML = `<strong>${user}:</strong> <p>${message}</p>`;
     chatWindow.appendChild(messageLine);
     
+    chatWindow.scrollTop = chatWindow.scrollHeight;
 }
 
 function updateUserList({users}){
