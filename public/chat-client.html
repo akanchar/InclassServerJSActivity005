@@ -110,6 +110,12 @@ document.getElementById('usernameForm').addEventListener('submit', function(e) {
     document.getElementById('usernameForm').style.display = 'none'; // Hide the username input after joining
 });
 
+leave = document.getElementById("leave")
+leave.addEventListener("click", (e)=>{
+    console.log("hi")
+    socket.emit("l", username)
+    console.log("hik")
+})
 
 
 // Optional: Handle message sending logic here

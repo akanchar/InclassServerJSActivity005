@@ -12,7 +12,7 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "chat-client.html"));
 });
 
-const users = []; // Store all users
+let users = []; // Store all users
 
 io.on("connection", (socket) => {
     console.log('A user connected');
@@ -29,11 +29,24 @@ io.on("connection", (socket) => {
     socket.on("disconnect", (who) => {
         console.log('A user disconnected');
         io.emit("show message", "userLeft", who)
+        users = users.filter((user)=>{
+            user.name != who
+        })
+        io.emit("updateUserList", users)
+    });
+    socket.on("l", (who) => {
+        console.log('A user discjijionnected');
+        io.emit("show message", "userLeft", who)
+        users = users.filter((user)=>{
+            user.name != who
+        })
+        io.emit("updateUserList", users)
     });
 
     socket.on("chat message", (who, what) => {
         io.emit("show message", "newMessage", who, what)
     });
+
 });
 
 const port = 8080;
