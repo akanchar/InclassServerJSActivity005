@@ -4,9 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Client</title>
-    <link rel="stylesheet" href="style.css"> <!-- Optional: Link to a CSS file for styling -->
+    <link rel="stylesheet" href="/public/style.css"> <!-- Optional: Link to a CSS file for styling -->
     <script src="/socket.io/socket.io.js"></script>
-    <script src="chat-client.js" defer></script> <!-- Load the chat-client.js -->
+    
 </head>
 <body>
     <div class="container">
@@ -34,5 +34,56 @@
             </form>
         </div>
     </div>
+    <script>
+        const socket = io();  // Connect to the server
+
+// Handle receiving the updated user list
+socket.on("updateUserList", (users) => {
+    const usersContainer = document.getElementById('users');
+    usersContainer.innerHTML = '';  // Clear the existing users list
+
+    // Regenerate the user list with profile pictures
+    users.forEach(user => {
+        const userDiv = document.createElement('div');
+        const profile = document.createElement('img');
+        
+        // Set profile picture based on random number
+        if (user.randomNum % 2 === 0) {
+            profile.src = user.profilePic;
+        } else {
+            profile.src = user.profilePic;
+        }
+
+        userDiv.textContent = user.name;
+        userDiv.prepend(profile);  // Add the profile picture before the username
+
+        usersContainer.appendChild(userDiv);  // Append user div to users container
+    });
+});
+
+// Send username to server when user enters it
+function sendUsername(username) {
+    socket.emit('username', username);
+}
+
+// Handle the username form submission
+document.getElementById('usernameForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const username = document.getElementById('usernameInput').value;
+    sendUsername(username);
+    document.getElementById('usernameForm').style.display = 'none'; // Hide the username input after joining
+});
+
+// Optional: Handle message sending logic here
+document.getElementById('messageForm').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const message = document.getElementById('messageInput').value;
+    // Emit message to server (you'll need to handle this on the server side)
+    socket.emit('chat message', message);
+    document.getElementById('messageInput').value = ''; // Clear the input after sending
+});
+
+    </script>
+    
 </body>
 </html>

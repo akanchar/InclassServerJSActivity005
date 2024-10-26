@@ -4,20 +4,13 @@ const { Server } = require("socket.io");
 const app = express();
 const http = require('http').createServer(app);
 const io = new Server(http);
+const User = require("./User")
 
-app.use("/static", express.static(path.join(__dirname, "public")));
+app.use(express.static(path.join(__dirname, "public")));
 
 app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "chat-client.html"));
 });
-
-// User class to store user information
-class User {
-    constructor(name) {
-        this.name = name;
-        this.randomNum = Math.floor(Math.random() * 100) + 1; // Random number 1-100
-    }
-}
 
 const users = []; // Store all users
 
@@ -29,11 +22,17 @@ io.on("connection", (socket) => {
         const newUser = new User(msg);  // Create a new user
         users.push(newUser);  // Add to users list
         io.emit("updateUserList", users);  // Emit updated user list to all clients
+        io.emit("show message", "userJoined")
     });
 
     // Handle user disconnect
     socket.on("disconnect", () => {
         console.log('A user disconnected');
+        io.emit("show message", "userLeft")
+    });
+
+    socket.on("chat message", (type) => {
+        io.emit("show message", "newMessage")
     });
 });
 
