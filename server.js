@@ -22,17 +22,17 @@ io.on("connection", (socket) => {
         const newUser = new User(msg);  // Create a new user
         users.push(newUser);  // Add to users list
         io.emit("updateUserList", users);  // Emit updated user list to all clients
-        io.emit("show message", "userJoined")
+        io.emit("show message", "userJoined", msg)
     });
 
     // Handle user disconnect
-    socket.on("disconnect", () => {
+    socket.on("disconnect", (who) => {
         console.log('A user disconnected');
-        io.emit("show message", "userLeft")
+        io.emit("show message", "userLeft", who)
     });
 
-    socket.on("chat message", (type) => {
-        io.emit("show message", "newMessage")
+    socket.on("chat message", (who, what) => {
+        io.emit("show message", "newMessage", who, what)
     });
 });
 

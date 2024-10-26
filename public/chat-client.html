@@ -66,20 +66,58 @@ function sendUsername(username) {
     socket.emit('username', username);
 }
 
+socket.on("show message", (type, who, what)=>{
+    if (type === "userJoined"){
+        const newMsg = document.createElement("div")
+        const txt = document.createElement("p")
+        newMsg.appendChild(txt)
+        const m = document.getElementById("messages")
+        m.appendChild(newMsg);
+        txt.innerHTML = `${who} has joined the chat!`
+        newMsg.className= "join"
+
+    } else if (type === "userLeft"){
+        const newMsg = document.createElement("div")
+        const txt = document.createElement("p")
+        newMsg.appendChild(txt)
+        document.getElementById("messages").appendChild(newMsg);
+        txt.innerText = `${who} has left the chat!`
+        newMsg.className = "left"
+
+    } else if (type === "newMessage"){
+        const newMsg = document.createElement("div")
+        const name = document.createElement("p")
+        const txt = document.createElement("p")
+        newMsg.appendChild(name)
+        name.innerHTML = who
+        newMsg.appendChild(txt)
+        document.getElementById("messages").appendChild(newMsg);
+        txt.innerText = what
+        if (who == username){
+            newMsg.className = "self"
+        }else{
+            newMsg.className = "other"
+        }
+
+    }
+})
+let username = "";
 // Handle the username form submission
 document.getElementById('usernameForm').addEventListener('submit', function(e) {
     e.preventDefault();
-    const username = document.getElementById('usernameInput').value;
+    username = document.getElementById('usernameInput').value;
     sendUsername(username);
     document.getElementById('usernameForm').style.display = 'none'; // Hide the username input after joining
 });
+
+
 
 // Optional: Handle message sending logic here
 document.getElementById('messageForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const message = document.getElementById('messageInput').value;
     // Emit message to server (you'll need to handle this on the server side)
-    socket.emit('chat message', message);
+    socket.emit('chat message', username, message);
     document.getElementById('messageInput').value = ''; // Clear the input after sending
 });
 
