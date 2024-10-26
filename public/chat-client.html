@@ -4,12 +4,71 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Client</title>
-    <link rel="stylesheet" href="/public/style.css"> <!-- Optional: Link to a CSS file for styling -->
+    <style>
+        .container{
+            width: 90vw;
+            display: flex;
+            flex-direction: row;
+            justify-content: space-evenly;
+            align-items: center;
+            
+            
+        }
+        .gone{
+            display:none;
+        }
+        .userDiv{
+            display: flex;
+            flex-direction: column;
+        }
+        .left{
+            background-color: rgba(255, 0, 0, 0.643);
+        }
+        .join{
+            background-color: rgba(6, 96, 6, 0.633);
+            
+        }
+        .self{
+                background-color: white;
+        }
+        .other{
+            background-color: rgba(11, 11, 220, 0.535);
+        }
+        .messages{
+            display: flex;
+            flex-direction: column;
+        }
+        .container{
+
+        }
+        .chats{
+
+        }
+        .users{
+
+        }
+        .chatHead{
+
+        }
+        button{
+
+        }
+        img{
+
+        }
+    </style>
+    
     <script src="/socket.io/socket.io.js"></script>
     
 </head>
 <body>
-    <div class="container">
+    <div>
+        <form id="usernameForm">
+            <input type="text" id="usernameInput" placeholder="Enter your username" required>
+            <button type="submit">Join Chat</button>
+        </form>
+    </div>
+    <div class="container gone" id="convo">
         <div id="chats">
             <p>DIRECT MESSAGES</p>
             <div id="users"></div>
@@ -27,12 +86,7 @@
                 </form>
             </div>
         </div>
-        <div>
-            <form id="usernameForm">
-                <input type="text" id="usernameInput" placeholder="Enter your username" required>
-                <button type="submit">Join Chat</button>
-            </form>
-        </div>
+        
     </div>
     <script>
         const socket = io();  // Connect to the server
@@ -86,10 +140,10 @@ socket.on("show message", (type, who, what)=>{
 
     } else if (type === "newMessage"){
         const newMsg = document.createElement("div")
-        const name = document.createElement("p")
-        const txt = document.createElement("p")
+        const name = document.createElement("span")
+        const txt = document.createElement("span")
         newMsg.appendChild(name)
-        name.innerHTML = who
+        name.innerText= who
         newMsg.appendChild(txt)
         document.getElementById("messages").appendChild(newMsg);
         txt.innerText = what
@@ -108,6 +162,7 @@ document.getElementById('usernameForm').addEventListener('submit', function(e) {
     username = document.getElementById('usernameInput').value;
     sendUsername(username);
     document.getElementById('usernameForm').style.display = 'none'; // Hide the username input after joining
+    document.getElementById("convo").className = "container"
 });
 
 leave = document.getElementById("leave")
