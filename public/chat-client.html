@@ -5,58 +5,99 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Client</title>
     <style>
-        .container{
+        body {
+            background-color: #000; /* Black background */
+            color: #fff; /* White text */
+            font-family: 'Arial', sans-serif;
+        }
+        #usernameForm {
+            border: solid 2px rgb(255, 31, 31); /* Bright red border */
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 50%;
+            height: 50%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
+            border-radius: 10px; /* Rounded corners */
+        }
+        #usernameForm button {
+            width: 50%;
+            margin-top: 5vh;
+            background-color: #ffeb3b; /* Bright yellow */
+            text-shadow: rgba(0, 0, 0, 0.8) 1px 1px 1px; /* Text shadow for better visibility */
+            color: #000; /* Black text for better contrast */
+            border: none;
+            border-radius: 5px; /* Rounded corners */
+            cursor: pointer; /* Pointer cursor on hover */
+            transition: background-color 0.3s; /* Smooth background color transition */
+        }
+        #usernameForm button:hover {
+            background-color: #ffc107; /* Slightly darker yellow on hover */
+        }
+        #usernameForm input {
+            width: 90%;
+            height: 10vw;
+            padding: 5px;
+            border-radius: 5px; /* Rounded corners */
+            border: 2px solid #ff4081; /* Pink border */
+            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent input background */
+            color: #fff; /* White text */
+        }
+        .curchat {
+            display: flex;
+        }
+        .container {
             width: 90vw;
             display: flex;
-            flex-direction: row;
+            flex-direction: column;
             justify-content: space-evenly;
             align-items: center;
-            
-            
         }
-        .gone{
-            display:none;
+        .gone {
+            display: none;
         }
-        .userDiv{
+        .userDiv {
             display: flex;
             flex-direction: column;
+            align-items: center;
+            width: 100%;
+            overflow-x: scroll;
+            padding: 10px;
+            transition: background-color 0.3s; /* Smooth background color transition */
         }
-        .left{
-            background-color: rgba(255, 0, 0, 0.643);
+        .userDiv:hover {
+            background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
         }
-        .join{
-            background-color: rgba(6, 96, 6, 0.633);
-            
+        .left {
+            background-color: rgba(255, 0, 0, 0.643); /* Red background for left messages */
         }
-        .self{
-                background-color: white;
+        .join {
+            background-color: rgba(0, 255, 0, 0.633); /* Green background for join messages */
         }
-        .other{
-            background-color: rgba(11, 11, 220, 0.535);
+        .self {
+            background-color: #ffeb3b; /* Bright yellow for self messages */
         }
-        .messages{
+        .other {
+            background-color: rgba(0, 0, 255, 0.535); /* Blue for other messages */
+        }
+        .messages {
             display: flex;
             flex-direction: column;
+            padding: 10px;
         }
-        .container{
-
+        button {
+            cursor: pointer; /* Pointer cursor on hover */
         }
-        .chats{
-
-        }
-        .users{
-
-        }
-        .chatHead{
-
-        }
-        button{
-
-        }
-        img{
-
+        img {
+            width: 40px; /* Set profile picture size */
+            height: 40px; /* Set profile picture size */
+            border-radius: 50%; /* Circular profile picture */
+            margin-right: 10px; /* Space between image and text */
         }
     </style>
+    
     
     <script src="/socket.io/socket.io.js"></script>
     
@@ -64,18 +105,19 @@
 <body>
     <div>
         <form id="usernameForm">
+            <h1>Welcome to Bit Cord</h1>
+            <h2>for blockchainers, by blockchainers</h2>
             <input type="text" id="usernameInput" placeholder="Enter your username" required>
             <button type="submit">Join Chat</button>
         </form>
     </div>
     <div class="container gone" id="convo">
         <div id="chats">
-            <p>DIRECT MESSAGES</p>
+            <p>Users</p>
             <div id="users"></div>
         </div>
         <div id="curChat">
             <div id="chatHead">
-                <h1>Chat</h1>
                 <button id="leave">LEAVE</button>
             </div>
             <div id="messages"></div>
@@ -107,7 +149,7 @@ socket.on("updateUserList", (users) => {
         } else {
             profile.src = user.profilePic;
         }
-
+        userDiv.className = "userDiv"
         userDiv.textContent = user.name;
         userDiv.prepend(profile);  // Add the profile picture before the username
 
@@ -117,6 +159,7 @@ socket.on("updateUserList", (users) => {
 
 // Send username to server when user enters it
 function sendUsername(username) {
+    
     socket.emit('username', username);
 }
 
@@ -163,6 +206,10 @@ document.getElementById('usernameForm').addEventListener('submit', function(e) {
     sendUsername(username);
     document.getElementById('usernameForm').style.display = 'none'; // Hide the username input after joining
     document.getElementById("convo").className = "container"
+    const head = document.getElementById("chatHead")
+    const name= document.createElement("h1")
+    name.innerHTML = `${username}'s Biscord Messages `
+    head.prepend(name)
 });
 
 leave = document.getElementById("leave")
