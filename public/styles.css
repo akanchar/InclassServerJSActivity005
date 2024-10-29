@@ -8,15 +8,20 @@
 /* User List Styles */
 .user-list {
     width: 25%;
-    background-color: #d1e7ff;
-    padding: 10px;
+    background-color: #87CEEB;
+    padding: 20px;
     border-right: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
 }
 
 .user-item {
     display: flex;
     align-items: center;
-    margin-bottom: 10px;
+    width: 100%;
+    margin-bottom: 15px;
+    padding: 5px;
 }
 
 .user-pic {
@@ -24,6 +29,8 @@
     height: 40px;
     margin-right: 10px;
     border-radius: 50%;
+    margin-right: 10px;
+    object-fit: cover;
 }
 
 .user-item span {
@@ -32,13 +39,15 @@
 }
 
 .online {
-    color: green;
-    font-weight: bold;
+    color: #4CAF50;
+    font-weight: normal;
+    margin-left: 5px;
 }
 
 .offline {
-    color: red;
-    font-weight: bold;
+    color: #D32F2F;
+    font-weight: normal;
+    margin-left: 5px;
 }
 
 /* Chat Window Styles */
@@ -65,18 +74,37 @@
 
 #messages li.myMessage {
     background-color: #ffeb3b;
+    color: #333;
     text-align: right;
+    padding: 8px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
 }
 
 #messages li.otherUser {
     background-color: #81c784;
-    text-align: left;
+    color: #155724;
+    padding: 8px 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 70%;
+    word-wrap: break-word;
 }
 
-#messages li.userJoined {
+#messages li.userJoined
+#messages li.userLeft {
     background-color: #e0e0e0;
+    color: #555;
     font-style: italic;
     text-align: center;
+    padding: 8px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
 }
 
 /* Chat input styles */

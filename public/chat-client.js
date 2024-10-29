@@ -44,8 +44,18 @@ socket.on('userlist',(data)=>{
 function addMessageChat({type, user, message}){
     const chatWindow = document.getElementById('messages');
     const messageLine = document.createElement('li');
-    // adds what type of message it is to the class to denote which one you sent and which one others sent
-    messageLine.classList=type; 
+    
+    // Apply the appropriate class based on the message type
+    if (type === 'myMessage') {
+        messageLine.classList.add('myMessage');
+    } else if (type === 'userJoined') {
+        messageLine.classList.add('userJoined');
+    } else if (type === 'userLeft') {
+        messageLine.classList.add('userLeft');
+    } else {
+        messageLine.classList.add('otherUser');
+    }
+
     messageLine.innerHTML = `<strong>${user}:</strong> <p>${message}</p>`;
     chatWindow.appendChild(messageLine);
     

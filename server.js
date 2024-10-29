@@ -14,6 +14,12 @@ class UserClass {
     }
 }
 
+// Function to generate a timestamp in HH:MM:SS format
+function getCurrentTimestamp() {
+    const now = new Date();
+    return now.toLocaleTimeString(); // Returns the current time in HH:MM:SS format
+}
+
 //handle requests for static resources
 app.use(express.static(path.join(__dirname, "public")));
 
