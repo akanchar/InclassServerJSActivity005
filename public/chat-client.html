@@ -6,127 +6,193 @@
     <title>Chat Client</title>
     <style>
         body {
-            background-color: #000; /* Black background */
-            color: #fff; /* White text */
+            background-color: #000; 
+            color: #fff;
             font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 1.5em;
+        }
+        input{
+            width: 70%; 
+            padding: 10px;
+            margin-bottom: 5vh;
+            font-size: 1.5em; 
+            border-radius: 5px; 
+            border: 2px solid #ff4081;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff; 
+        }
+        #users {
+            display: flex;
+            flex-direction: row;
+            overflow-x: auto;
         }
         #usernameForm {
-            border: solid 2px rgb(255, 31, 31); /* Bright red border */
+            border: solid 2px rgb(255, 31, 31);
             display: flex;
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            width: 50%;
-            height: 50%;
+            width: 95%; 
+            max-width: 800px;
+            margin: 5vh auto; 
             padding: 20px;
-            background-color: rgba(255, 255, 255, 0.1); /* Semi-transparent background */
-            border-radius: 10px; /* Rounded corners */
+            background-color: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            font-size: .9em;
         }
         #usernameForm button {
-            width: 50%;
-            margin-top: 5vh;
-            background-color: #ffeb3b; /* Bright yellow */
-            text-shadow: rgba(0, 0, 0, 0.8) 1px 1px 1px; /* Text shadow for better visibility */
-            color: #000; /* Black text for better contrast */
+            width: 80%; 
+            padding: 10px;
+            margin-top: 2vh;
+            background-color: #ffeb3b; 
+            text-shadow: rgba(0, 0, 0, 0.8) 1px 1px 1px; 
+            color: #000; 
             border: none;
-            border-radius: 5px; /* Rounded corners */
-            cursor: pointer; /* Pointer cursor on hover */
-            transition: background-color 0.3s; /* Smooth background color transition */
+            border-radius: 5px; 
+            cursor: pointer;
+            transition: background-color 0.3s; 
         }
         #usernameForm button:hover {
-            background-color: #ffc107; /* Slightly darker yellow on hover */
+            background-color: #ffc107; 
         }
         #usernameForm input {
-            width: 90%;
-            height: 10vw;
-            padding: 5px;
-            border-radius: 5px; /* Rounded corners */
-            border: 2px solid #ff4081; /* Pink border */
-            background-color: rgba(255, 255, 255, 0.2); /* Semi-transparent input background */
-            color: #fff; /* White text */
+            width: 90%; 
+            padding: 10px;
+            margin-bottom: 5vh;
+            font-size: 1.5em; 
+            border-radius: 5px; 
+            border: 2px solid #ff4081;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: #fff; 
         }
-        .curchat {
+        #curChat, .container {
             display: flex;
+            position: relative;
+            flex-direction: column;
+            
+           
+        }
+        #curChat{
+            border: 2px solid #ff4081;
+            width: 75vw;
+            margin-bottom: 5vh;
+            margin-top: 5vh;
+            width: fit-content;
         }
         .container {
-            width: 90vw;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-evenly;
-            align-items: center;
+            padding: 0 5vw; 
+        }
+        #typeArea {
+            height: 5vh;
         }
         .gone {
             display: none;
+        }
+        #chatHead {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            width: 50%;
+        }
+        .chatHead h1 {
+            margin: 0;
+        }
+        .chatHead button, #leave {
+            width: 100%;
+            max-width: 150px; 
         }
         .userDiv {
             display: flex;
             flex-direction: column;
             align-items: center;
             width: 100%;
-            overflow-x: scroll;
             padding: 10px;
-            transition: background-color 0.3s; /* Smooth background color transition */
+            transition: background-color 0.3s;
         }
-        .userDiv:hover {
-            background-color: rgba(255, 255, 255, 0.1); /* Light background on hover */
+        .left, .join, .self, .other {
+            width: 60%;
+            max-width: 70%;
+            padding: 10px;
+            border-radius: 5px;
+            text-align: center;
+            margin: 5px 0;
+            height: 7vh;
+            min-height: fit-content;
+        }
+        .container{
+            align-items: center;
         }
         .left {
-            background-color: rgba(255, 0, 0, 0.643); /* Red background for left messages */
+            background-color: rgba(255, 0, 0, 0.643); 
         }
         .join {
-            background-color: rgba(0, 255, 0, 0.633); /* Green background for join messages */
+            background-color: rgba(0, 255, 0, 0.633);
         }
         .self {
-            background-color: #ffeb3b; /* Bright yellow for self messages */
+            background-color: #ffeb3b;
+            align-self: flex-end;
         }
         .other {
-            background-color: rgba(0, 0, 255, 0.535); /* Blue for other messages */
+            background-color: rgba(0, 0, 255, 0.535);
+            align-self: flex-start;
         }
-        .messages {
+        #messages {
             display: flex;
             flex-direction: column;
             padding: 10px;
+            overflow-y: scroll;
+            max-height: 50vh;
+            width: 50vw;
         }
         button {
-            cursor: pointer; /* Pointer cursor on hover */
+            cursor: pointer; 
+            padding: 10px;
+            font-size: 1em; 
         }
         img {
-            width: 40px; /* Set profile picture size */
-            height: 40px; /* Set profile picture size */
-            border-radius: 50%; /* Circular profile picture */
-            margin-right: 10px; /* Space between image and text */
+            width: 40px; 
+            height: 40px; 
+            border-radius: 50%; 
+            margin-right: 10px; 
         }
     </style>
+    
+    
     
     
     <script src="/socket.io/socket.io.js"></script>
     
 </head>
 <body>
-    <div>
+    
         <form id="usernameForm">
             <h1>Welcome to Bit Cord</h1>
             <h2>for blockchainers, by blockchainers</h2>
             <input type="text" id="usernameInput" placeholder="Enter your username" required>
             <button type="submit">Join Chat</button>
         </form>
-    </div>
+    
     <div class="container gone" id="convo">
         <div id="chats">
             <p>Users</p>
             <div id="users"></div>
         </div>
-        <div id="curChat">
-            <div id="chatHead">
+        <div id="chatHead">
                 <button id="leave">LEAVE</button>
             </div>
+        <div id="curChat">
+            
             <div id="messages"></div>
-            <div id="typeArea">
-                <form id="messageForm">
-                    <input type="text" id="messageInput" placeholder="Type your message...">
-                    <button id="send">SEND</button>
-                </form>
-            </div>
+            
+        </div>
+        <div id="typeArea">
+            <form id="messageForm">
+                <input type="text" id="messageInput" placeholder="Type your message...">
+                <button id="send">SEND</button>
+            </form>
         </div>
         
     </div>
@@ -184,7 +250,7 @@ socket.on("show message", (type, who, what)=>{
     } else if (type === "newMessage"){
         const newMsg = document.createElement("div")
         const name = document.createElement("span")
-        const txt = document.createElement("span")
+        const txt = document.createElement("div")
         newMsg.appendChild(name)
         name.innerText= who
         newMsg.appendChild(txt)
