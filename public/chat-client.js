@@ -37,6 +37,9 @@ socket.on('chat message', (chatMessage) => {
     if (chatMessage.user !== currentUser) {
         messageElement.className = 'message other';
     } 
+    else   {
+        messageElement.className = 'message you';
+    }
 
     messageElement.innerHTML = `<strong>${chatMessage.user}</strong>: ${chatMessage.message} <em>(${chatMessage.time})</em>`;
     document.getElementById('messages').appendChild(messageElement);
@@ -53,11 +56,8 @@ document.getElementById('send-button').addEventListener('click', () => {
             message: message,
             time: new Date().toLocaleTimeString()
         };
-        const messageElement = document.createElement('div');
-        messageElement.className = 'message you'; // Add class for the current user's message
-        messageElement.innerHTML = `<strong>${chatMessage.user}</strong>: ${chatMessage.message} <em>(${chatMessage.time})</em>`;
-        document.getElementById('messages').appendChild(messageElement);
 
+        // Emit message to server (do not immediately append it in the sender's chat)
         socket.emit('chat message', chatMessage);
         messageInput.value = ''; // Clear input
     }

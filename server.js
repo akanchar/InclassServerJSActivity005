@@ -35,12 +35,15 @@ io.on('connection', (socket) => {
     });
 
     // Handle chat message
-    socket.on('chat message', (chatData) => {
-        const { message, to } = chatData;
-        const recipient = users.find(user => user.name === to);
-        if (recipient) {
-            io.to(recipient.socketId).emit('chat message', { message, from: socket.username });
-        }
+    socket.on('chat message', (chatMessage) => {
+        const messageData = {
+            message: chatMessage.message,
+            user: socket.username,
+            time: new Date().toLocaleTimeString()
+        };
+        
+        // Broadcast message to all clients, including sender
+        io.emit('chat message', messageData);
     });
 
     // Handle user leaving
