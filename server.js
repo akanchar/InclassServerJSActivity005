@@ -31,9 +31,12 @@ app.post('/remove-user', (req, res) => {
 
 io.on('connection', (socket) => {
   socket.on('chat-message', (data) => {
-    socket.broadcast.emit('chat-message', data);
+      io.emit('chat-message', data);  // Broadcast the message to all clients
   });
 });
+
+
+
 
 http.listen(3000, () => {
   console.log('Server running on port 3000');
