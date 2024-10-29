@@ -33,12 +33,19 @@ joinButton.addEventListener('click', () => {
         body: JSON.stringify({ name: userName })
     }).then(response => response.json())
       .then(data => {
+
+            const message = "joined";
+            const chatMessage = { user: userName, message: message, time: new Date().toLocaleTimeString() };
+            
+            socket.emit('chat-message', chatMessage);
+            messageInput.value = ''; // Clear the input after sending
+              
+        
+        messageInput.value = ''; // Clear the input after sending
         if (data.success) {  // Check if the server confirms the user was added successfully
             updateUserList(data.users); // Update the client-side user list
             // Construct a message to indicate joining
-            const joinMessage = { user: 'System', message: `${userName} joined the chat`, time: new Date().toLocaleTimeString() };
-            
-            socket.emit('chat-message', joinMessage);  // Broadcast join message to all clients
+       
         } else {
             console.error("Failed to join chat:", data.message);  // Log error to console instead of alerting
         }
@@ -58,6 +65,12 @@ leaveButton.addEventListener('click', () => {
             body: JSON.stringify({ name: userName })
         }).then(response => response.json())
           .then(data => {
+            const message = "left";
+            const chatMessage = { user: userName, message: message, time: new Date().toLocaleTimeString() };
+           
+            socket.emit('chat-message', chatMessage);
+            messageInput.value = ''; // Clear the input after sending
+              
               updateUserList(data);
               messageBox.style.display = 'none'; // Hide the chat window
           });
@@ -70,7 +83,7 @@ sendButton.addEventListener('click', () => {
     const userName = userNameInput.value.trim();
     if (message && userName) {
         const chatMessage = { user: userName, message: message, time: new Date().toLocaleTimeString() };
-        displayMessage(chatMessage, true);
+        
         socket.emit('chat-message', chatMessage);
         messageInput.value = ''; // Clear the input after sending
     }
