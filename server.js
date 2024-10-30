@@ -15,7 +15,14 @@ app.get("/", (req, res) => {
 class User {
     constructor(name) {
         this.name = name;
-        this.randomNum = Math.floor(Math.random() * 100) + 1; // Random number 1-100
+        this.randomNumber = Math.floor(Math.random() * 100) + 1;
+
+        // Assign profile picture based on random number
+        if (this.randomNumber % 2 === 0) {
+            this.profilePic = `https://randomuser.me/api/portraits/men/${this.randomNumber}.jpg`;
+        } else {
+            this.profilePic = `https://randomuser.me/api/portraits/women/${this.randomNumber}.jpg`;
+        }
     }
 }
 
@@ -39,3 +46,4 @@ io.on("connection", (socket) => {
 
 const port = 8080;
 http.listen(port, () => console.log(`Server running on port ${port}`));
+
