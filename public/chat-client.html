@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>WhatsApp-style Chat</title>
     <style>
+        /* Styling for the chat interface */
         body {
             background-color: #e5ddd5;
             color: #000;
@@ -16,79 +17,70 @@
         input {
             width: 70%;
             padding: 10px;
-            margin-bottom: 10px;
             font-size: 1em;
             border-radius: 5px;
             border: 2px solid #4CAF50;
             background-color: rgba(255, 255, 255, 0.9);
-            color: #000;
-        }
-        #users {
-            display: flex;
-            flex-direction: column;
-            overflow-y: auto;
         }
         #usernameForm {
             display: flex;
             flex-direction: column;
             align-items: center;
-            justify-content: center;
-            width: 95%;
-            max-width: 800px;
             margin: 20px auto;
             padding: 20px;
             background-color: rgba(255, 255, 255, 0.8);
             border-radius: 10px;
+            width: 90%;
+            max-width: 600px;
         }
         #usernameForm button {
-            width: 80%;
+            width: 100%;
             padding: 10px;
-            margin-top: 10px;
             background-color: #4CAF50;
             color: #fff;
             border: none;
             border-radius: 5px;
             cursor: pointer;
-            transition: background-color 0.3s;
         }
         #usernameForm button:hover {
             background-color: #45a049;
         }
-        #curChat {
-            border: 2px solid #4CAF50;
-            width: 75vw;
-            margin: 20px auto;
+        #convo {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 800px;
+            margin: auto;
+            padding: 20px;
             border-radius: 10px;
             background-color: #f9f9f9;
-            padding: 10px;
         }
         #messages {
-            display: flex;
-            flex-direction: column;
+            width: 100%;
+            height: 300px;
             padding: 10px;
             overflow-y: scroll;
-            max-height: 50vh;
+            background-color: #f9f9f9;
+            border: 2px solid #4CAF50;
+            border-radius: 10px;
         }
         .message {
-            padding: 10px;
-            border-radius: 5px;
-            margin: 5px 0;
+            padding: 8px;
+            margin: 5px;
             max-width: 70%;
+            border-radius: 5px;
         }
-        .self {
-            align-self: flex-end;
-            background-color: #dcf8c6;
-        }
-        .other {
-            align-self: flex-start;
-            background-color: #fff;
-        }
-        .userDiv {
+        .self { background-color: #dcf8c6; align-self: flex-end; }
+        .other { background-color: #fff; align-self: flex-start; }
+        #typeArea { display: flex; width: 100%; margin-top: 10px; }
+        #users {
+            width: 100%;
+            overflow-y: auto;
             padding: 10px;
-            text-align: left;
-        }
-        .gone {
-            display: none;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 5px;
         }
     </style>
     <script src="/socket.io/socket.io.js"></script>
@@ -99,78 +91,56 @@
         <input type="text" id="usernameInput" placeholder="Enter your username" required>
         <button type="submit">Join Chat</button>
     </form>
-    
-    <div class="container gone" id="convo">
+
+    <div id="convo">
         <div id="users"></div>
-        <div id="curChat">
-            <div id="messages"></div>
-        </div>
+        <div id="messages"></div>
         <div id="typeArea">
-            <form id="messageForm">
-                <input type="text" id="messageInput" placeholder="Type your message..." required>
-                <button id="send">SEND</button>
-                <button type="button" id="leave">LEAVE</button> <!-- Leave button added here -->
-            </form>
+            <input type="text" id="messageInput" placeholder="Type your message..." required>
+            <button id="send">Send</button>
+            <button type="button" id="leave">Leave</button>
         </div>
     </div>
-    
+
     <script>
-        const socket = io();  // Connect to the server
-
-        socket.on("updateUserList", (users) => {
-            const usersContainer = document.getElementById('users');
-            usersContainer.innerHTML = '';  // Clear existing users
-            users.forEach(user => {
-                const userDiv = document.createElement('div');
-                userDiv.className = "userDiv";
-                userDiv.textContent = user.name;
-                usersContainer.appendChild(userDiv);  // Append user to users container
-            });
-        });
-
-        socket.on("show message", (type, who, what) => {
-            const newMsg = document.createElement("div");
-            newMsg.className = "message";
-            if (type === "userJoined") {
-                newMsg.innerHTML = `<strong>${who}</strong> has joined the chat!`;
-            } else if (type === "userLeft") {
-                newMsg.innerHTML = `<strong>${who}</strong> has left the chat!`;
-            } else if (type === "newMessage") {
-                newMsg.innerHTML = `<strong>${who}:</strong> ${what}`;
-                newMsg.classList.add(who === username ? "self" : "other");
-            }
-            document.getElementById("messages").appendChild(newMsg);
-            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight; // Scroll to the bottom
-        });
-
+        const socket = io();
         let username = "";
-        
-        // Handle username submission
-        document.getElementById('usernameForm').addEventListener('submit', function(e) {
+
+        document.getElementById('usernameForm').addEventListener('submit', (e) => {
             e.preventDefault();
             username = document.getElementById('usernameInput').value;
-            socket.emit('set username', username); // Set username on server
-            socket.emit('username', username); // Notify server of new username
-            document.getElementById('usernameForm').style.display = 'none'; // Hide the username input
-            document.getElementById("convo").className = ""; // Show chat container
+            socket.emit('username', username);
+            document.getElementById('usernameForm').style.display = 'none';
+            document.getElementById('convo').style.display = 'flex';
         });
 
-        // Handle message submission
-        document.getElementById('messageForm').addEventListener('submit', function(e) {
+        document.getElementById('send').addEventListener('click', (e) => {
             e.preventDefault();
             const message = document.getElementById('messageInput').value;
-            if (message.trim()) { // Only send non-empty messages
-                socket.emit('chat message', username, message); // Emit chat message
-                document.getElementById('messageInput').value = ''; // Clear input after sending
+            if (message.trim()) {
+                socket.emit('chat message', username, message);
+                document.getElementById('messageInput').value = '';
             }
         });
 
-        // Handle leave button click
-        document.getElementById('leave').addEventListener('click', function() {
-            socket.emit('leave'); // Emit leave event to the server
-            document.getElementById('usernameForm').style.display = ''; // Show the username form again
-            document.getElementById("convo").classList.add("gone"); // Hide chat container
-            username = ""; // Clear the username
+        document.getElementById('leave').addEventListener('click', () => {
+            socket.emit('leave');
+            document.getElementById('usernameForm').style.display = 'block';
+            document.getElementById('convo').style.display = 'none';
+            username = '';
+        });
+
+        socket.on('updateUserList', (users) => {
+            document.getElementById('users').innerHTML = users.map(user => `<div>${user.name}</div>`).join('');
+        });
+
+        socket.on('show message', (type, who, what) => {
+            const messagesDiv = document.getElementById('messages');
+            const msgDiv = document.createElement('div');
+            msgDiv.className = `message ${who === username ? 'self' : 'other'}`;
+            msgDiv.innerHTML = type === 'newMessage' ? `<strong>${who}:</strong> ${what}` : `<strong>${who}</strong> has ${type === 'userJoined' ? 'joined' : 'left'} the chat`;
+            messagesDiv.appendChild(msgDiv);
+            messagesDiv.scrollTop = messagesDiv.scrollHeight;
         });
     </script>
 </body>
