@@ -107,7 +107,7 @@
         </div>
         <div id="typeArea">
             <form id="messageForm">
-                <input type="text" id="messageInput" placeholder="Type your message...">
+                <input type="text" id="messageInput" placeholder="Type your message..." required>
                 <button id="send">SEND</button>
             </form>
         </div>
@@ -147,15 +147,18 @@
             e.preventDefault();
             username = document.getElementById('usernameInput').value;
             socket.emit('set username', username); // Set username on server
+            socket.emit('username', username); // Notify server of new username
             document.getElementById('usernameForm').style.display = 'none'; // Hide the username input
-            document.getElementById("convo").className = "container"; // Show chat container
+            document.getElementById("convo").className = ""; // Show chat container
         });
 
         document.getElementById('messageForm').addEventListener('submit', function(e) {
             e.preventDefault();
             const message = document.getElementById('messageInput').value;
-            socket.emit('chat message', username, message); // Emit chat message
-            document.getElementById('messageInput').value = ''; // Clear input after sending
+            if (message.trim()) { // Only send non-empty messages
+                socket.emit('chat message', username, message); // Emit chat message
+                document.getElementById('messageInput').value = ''; // Clear input after sending
+            }
         });
     </script>
 </body>
