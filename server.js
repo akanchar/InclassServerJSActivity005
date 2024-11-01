@@ -44,8 +44,8 @@ io.on("connection", (socket) => {
         }
     });
 
-    socket.on("chat message", (username, message) => {
-        io.emit("show message", "newMessage", username, message);
+    socket.on("chat message", (username, message, time) => {
+        io.emit("show message", "newMessage", username, message, time);
     });
 });
 

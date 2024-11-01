@@ -92,7 +92,7 @@
 </head>
 <body>
     <form id="usernameForm">
-        <h1>Welcome to Bit Cord</h1>
+        <h1>WeChat</h1>
         <input type="text" id="usernameInput" placeholder="Enter your username" required>
         <button type="submit">Join Chat</button>
     </form>
@@ -126,7 +126,7 @@
         });
 
         // Display different message types
-        socket.on("show message", (type, who, what) => {
+        socket.on("show message", (type, who, what, time) => {
             const messageContainer = document.createElement("div");
             messageContainer.classList.add("message");
 
@@ -141,9 +141,13 @@
                 sender.innerText = `${who}: `;
                 const messageText = document.createElement("span");
                 messageText.innerText = what;
+                const messageTime = document.createElement("span");
+                messageTime.innerText = ` (${time})`;
+                messageTime.style.fontSize = "0.8em"; // Smaller font for time
 
                 messageContainer.appendChild(sender);
                 messageContainer.appendChild(messageText);
+                messageContainer.appendChild(messageTime);
                 messageContainer.classList.add(who === username ? "self" : "other");
             }
             document.getElementById("messages").appendChild(messageContainer);
@@ -167,7 +171,8 @@
         document.getElementById("messageForm").addEventListener("submit", (e) => {
             e.preventDefault();
             const message = document.getElementById("messageInput").value;
-            socket.emit("chat message", username, message);
+            const currentTime = new Date().toLocaleTimeString(); // Get current time
+            socket.emit("chat message", username, message, currentTime);
             document.getElementById("messageInput").value = "";
         });
     </script>
