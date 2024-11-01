@@ -3,36 +3,160 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat Client</title>
-    <link rel="stylesheet" href="style.css"> <!-- Link to a CSS file for styling -->
+    <title>WhatsApp-style Chat</title>
+    <style>
+        body {
+            background-color: #e5ddd5; 
+            color: #000;
+            font-family: 'Arial', sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 1.2em;
+        }
+        input {
+            width: 70%; 
+            padding: 10px;
+            margin-bottom: 10px;
+            font-size: 1em; 
+            border-radius: 5px; 
+            border: 2px solid #4CAF50;
+            background-color: rgba(255, 255, 255, 0.9);
+            color: #000; 
+        }
+        #users {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+        #usernameForm {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 95%; 
+            max-width: 800px;
+            margin: 20px auto; 
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 10px;
+        }
+        #usernameForm button {
+            width: 80%; 
+            padding: 10px;
+            margin-top: 10px;
+            background-color: #4CAF50; 
+            color: #fff; 
+            border: none;
+            border-radius: 5px; 
+            cursor: pointer;
+            transition: background-color 0.3s; 
+        }
+        #usernameForm button:hover {
+            background-color: #45a049; 
+        }
+        #curChat {
+            border: 2px solid #4CAF50;
+            width: 75vw;
+            margin: 20px auto;
+            border-radius: 10px;
+            background-color: #f9f9f9;
+            padding: 10px;
+        }
+        #messages {
+            display: flex;
+            flex-direction: column;
+            padding: 10px;
+            overflow-y: scroll;
+            max-height: 50vh;
+        }
+        .message {
+            padding: 10px;
+            border-radius: 5px;
+            margin: 5px 0;
+            max-width: 70%;
+        }
+        .self {
+            align-self: flex-end;
+            background-color: #dcf8c6; /* Light green */
+        }
+        .other {
+            align-self: flex-start;
+            background-color: #fff; /* White */
+        }
+        .userDiv {
+            padding: 10px;
+            text-align: left;
+        }
+        .gone {
+            display: none;
+        }
+    </style>
     <script src="/socket.io/socket.io.js"></script>
-    <script src="chat-client.js" defer></script> <!-- Load the chat-client.js -->
 </head>
 <body>
-    <div class="container">
-        <div id="chats">
-            <p>DIRECT MESSAGES</p>
-            <div id="users"></div> <!-- User list displayed here -->
-        </div>
+    <form id="usernameForm">
+        <h1>Welcome to ChatMate</h1>
+        <input type="text" id="usernameInput" placeholder="Enter your username" required>
+        <button type="submit">Join Chat</button>
+    </form>
+    
+    <div class="container gone" id="convo">
+        <div id="users"></div>
         <div id="curChat">
-            <div id="chatHead">
-                <h1>Chat</h1>
-                <button id="leave">LEAVE</button> <!-- Button to leave chat -->
-            </div>
-            <div id="messages"></div> <!-- Chat messages displayed here -->
-            <div id="typeArea">
-                <form id="messageForm">
-                    <input type="text" id="messageInput" placeholder="Type your message..." required>
-                    <button id="send">SEND</button> <!-- Send button -->
-                </form>
-            </div>
+            <div id="messages"></div>
         </div>
-        <div>
-            <form id="usernameForm">
-                <input type="text" id="usernameInput" placeholder="Enter your username" required>
-                <button type="submit">Join Chat</button> <!-- Join button -->
+        <div id="typeArea">
+            <form id="messageForm">
+                <input type="text" id="messageInput" placeholder="Type your message...">
+                <button id="send">SEND</button>
             </form>
         </div>
     </div>
+    
+    <script>
+        const socket = io();  // Connect to the server
+
+        socket.on("updateUserList", (users) => {
+            const usersContainer = document.getElementById('users');
+            usersContainer.innerHTML = '';  // Clear existing users
+            users.forEach(user => {
+                const userDiv = document.createElement('div');
+                userDiv.className = "userDiv";
+                userDiv.textContent = user.name;
+                usersContainer.appendChild(userDiv);  // Append user to users container
+            });
+        });
+
+        socket.on("show message", (type, who, what) => {
+            const newMsg = document.createElement("div");
+            newMsg.className = "message";
+            if (type === "userJoined") {
+                newMsg.innerHTML = `<strong>${who}</strong> has joined the chat!`;
+            } else if (type === "userLeft") {
+                newMsg.innerHTML = `<strong>${who}</strong> has left the chat!`;
+            } else if (type === "newMessage") {
+                newMsg.innerHTML = `<strong>${who}:</strong> ${what}`;
+                newMsg.classList.add(who === username ? "self" : "other");
+            }
+            document.getElementById("messages").appendChild(newMsg);
+            document.getElementById("messages").scrollTop = document.getElementById("messages").scrollHeight; // Scroll to the bottom
+        });
+
+        let username = "";
+        document.getElementById('usernameForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            username = document.getElementById('usernameInput').value;
+            socket.emit('set username', username); // Set username on server
+            document.getElementById('usernameForm').style.display = 'none'; // Hide the username input
+            document.getElementById("convo").className = "container"; // Show chat container
+        });
+
+        document.getElementById('messageForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const message = document.getElementById('messageInput').value;
+            socket.emit('chat message', username, message); // Emit chat message
+            document.getElementById('messageInput').value = ''; // Clear input after sending
+        });
+    </script>
 </body>
 </html>
