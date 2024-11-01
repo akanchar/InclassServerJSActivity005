@@ -3,144 +3,172 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>WhatsApp-style Chat</title>
+    <title>Chat Client</title>
     <style>
-        /* Styling for the chat interface */
         body {
             background-color: #e5ddd5;
             color: #000;
-            font-family: 'Arial', sans-serif;
+            font-family: Arial, sans-serif;
             margin: 0;
             padding: 0;
+            font-size: 1.5em;
+        }
+        input, button {
             font-size: 1.2em;
         }
-        input {
-            width: 70%;
-            padding: 10px;
-            font-size: 1em;
-            border-radius: 5px;
-            border: 2px solid #4CAF50;
-            background-color: rgba(255, 255, 255, 0.9);
-        }
-        #usernameForm {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            margin: 20px auto;
-            padding: 20px;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 10px;
+        #usernameForm, #convo {
             width: 90%;
             max-width: 600px;
+            margin: 5vh auto;
+            text-align: center;
         }
-        #usernameForm button {
-            width: 100%;
-            padding: 10px;
-            background-color: #4CAF50;
-            color: #fff;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #usernameForm button:hover {
-            background-color: #45a049;
+        #usernameForm {
+            padding: 20px;
+            border: 2px solid #25D366;
+            background-color: #dcf8c6;
+            border-radius: 10px;
         }
         #convo {
             display: none;
             flex-direction: column;
             align-items: center;
-            width: 100%;
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            background-color: #f9f9f9;
         }
-        #messages {
+        #curChat, #messages {
             width: 100%;
-            height: 300px;
-            padding: 10px;
+            max-height: 50vh;
             overflow-y: scroll;
-            background-color: #f9f9f9;
-            border: 2px solid #4CAF50;
-            border-radius: 10px;
+            border: 2px solid #25D366;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #e5ddd5;
         }
         .message {
             padding: 8px;
-            margin: 5px;
-            max-width: 70%;
             border-radius: 5px;
+            margin: 5px 0;
         }
-        .self { background-color: #dcf8c6; align-self: flex-end; }
-        .other { background-color: #fff; align-self: flex-start; }
-        #typeArea { display: flex; width: 100%; margin-top: 10px; }
-        #users {
-            width: 100%;
-            overflow-y: auto;
+        .userDiv {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+        .userDiv img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .join { background-color: rgba(37, 211, 102, 0.5); }
+        .left { background-color: rgba(255, 193, 7, 0.5); }
+        .self { background-color: #dcf8c6; }
+        .other { background-color: #fff; }
+        #messageForm {
+            display: flex;
+            gap: 10px;
+        }
+        #messageInput {
+            flex: 1;
+        }
+        button {
+            background-color: #25D366;
+            color: #fff;
+            border: none;
             padding: 10px;
-            margin-bottom: 10px;
-            background-color: rgba(255, 255, 255, 0.8);
+            cursor: pointer;
             border-radius: 5px;
+            font-size: 1.2em;
+        }
+        button:hover {
+            background-color: #128c7e;
+        }
+        #leave {
+            background-color: #f44336;
+        }
+        #leave:hover {
+            background-color: #d32f2f;
         }
     </style>
     <script src="/socket.io/socket.io.js"></script>
 </head>
 <body>
     <form id="usernameForm">
-        <h1>Welcome to ChatMate</h1>
+        <h1>Welcome to Bit Cord</h1>
         <input type="text" id="usernameInput" placeholder="Enter your username" required>
         <button type="submit">Join Chat</button>
     </form>
-
+    
     <div id="convo">
         <div id="users"></div>
-        <div id="messages"></div>
-        <div id="typeArea">
-            <input type="text" id="messageInput" placeholder="Type your message..." required>
-            <button id="send">Send</button>
-            <button type="button" id="leave">Leave</button>
+        <div id="curChat">
+            <div id="messages"></div>
         </div>
+        <form id="messageForm">
+            <input type="text" id="messageInput" placeholder="Type your message..." required>
+            <button type="submit">SEND</button>
+            <button type="button" id="leave">LEAVE</button>
+        </form>
     </div>
 
     <script>
         const socket = io();
         let username = "";
 
-        document.getElementById('usernameForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            username = document.getElementById('usernameInput').value;
-            socket.emit('username', username);
-            document.getElementById('usernameForm').style.display = 'none';
-            document.getElementById('convo').style.display = 'flex';
+        // Display user list
+        socket.on("updateUserList", (users) => {
+            const usersContainer = document.getElementById("users");
+            usersContainer.innerHTML = "";
+            users.forEach(user => {
+                const userDiv = document.createElement("div");
+                userDiv.classList.add("userDiv");
+                userDiv.innerHTML = `<img src="${user.profilePic}" alt="Profile"> ${user.name}`;
+                usersContainer.appendChild(userDiv);
+            });
         });
 
-        document.getElementById('send').addEventListener('click', (e) => {
-            e.preventDefault();
-            const message = document.getElementById('messageInput').value;
-            if (message.trim()) {
-                socket.emit('chat message', username, message);
-                document.getElementById('messageInput').value = '';
+        // Display different message types
+        socket.on("show message", (type, who, what) => {
+            const messageContainer = document.createElement("div");
+            messageContainer.classList.add("message");
+
+            if (type === "userJoined") {
+                messageContainer.classList.add("join");
+                messageContainer.innerText = `${who} has joined the chat!`;
+            } else if (type === "userLeft") {
+                messageContainer.classList.add("left");
+                messageContainer.innerText = `${who} has left the chat!`;
+            } else if (type === "newMessage") {
+                const sender = document.createElement("span");
+                sender.innerText = `${who}: `;
+                const messageText = document.createElement("span");
+                messageText.innerText = what;
+
+                messageContainer.appendChild(sender);
+                messageContainer.appendChild(messageText);
+                messageContainer.classList.add(who === username ? "self" : "other");
             }
+            document.getElementById("messages").appendChild(messageContainer);
         });
 
-        document.getElementById('leave').addEventListener('click', () => {
-            socket.emit('leave');
-            document.getElementById('usernameForm').style.display = 'block';
-            document.getElementById('convo').style.display = 'none';
-            username = '';
+        // Join chat with username
+        document.getElementById("usernameForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            username = document.getElementById("usernameInput").value;
+            socket.emit("username", username);
+            document.getElementById("usernameForm").style.display = "none";
+            document.getElementById("convo").style.display = "flex";
         });
 
-        socket.on('updateUserList', (users) => {
-            document.getElementById('users').innerHTML = users.map(user => `<div>${user.name}</div>`).join('');
+        // Leave chat
+        document.getElementById("leave").addEventListener("click", () => {
+            socket.emit("l", username);
         });
 
-        socket.on('show message', (type, who, what) => {
-            const messagesDiv = document.getElementById('messages');
-            const msgDiv = document.createElement('div');
-            msgDiv.className = `message ${who === username ? 'self' : 'other'}`;
-            msgDiv.innerHTML = type === 'newMessage' ? `<strong>${who}:</strong> ${what}` : `<strong>${who}</strong> has ${type === 'userJoined' ? 'joined' : 'left'} the chat`;
-            messagesDiv.appendChild(msgDiv);
-            messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        // Send chat message
+        document.getElementById("messageForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const message = document.getElementById("messageInput").value;
+            socket.emit("chat message", username, message);
+            document.getElementById("messageInput").value = "";
         });
     </script>
 </body>

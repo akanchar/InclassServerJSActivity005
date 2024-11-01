@@ -14,39 +14,39 @@ app.get("/", (req, res) => {
     res.sendFile(path.join(__dirname, "public", "chat-client.html"));
 });
 
-let users = [];
+let users = []; // Store all users
 
 io.on("connection", (socket) => {
     console.log("A user connected");
 
-    socket.on("username", (username) => {
-        const newUser = new User(username);
+    socket.on("username", (name) => {
+        const newUser = new User(name);
         users.push(newUser);
-        socket.username = username;
         io.emit("updateUserList", users);
-        io.emit("show message", "userJoined", username);
-    });
-
-    socket.on("chat message", (who, what) => {
-        io.emit("show message", "newMessage", who, what);
-    });
-
-    socket.on("leave", () => {
-        handleUserDisconnect(socket);
+        io.emit("show message", "userJoined", newUser.name);
     });
 
     socket.on("disconnect", () => {
-        handleUserDisconnect(socket);
+        const user = users.find((u) => u.name === socket.username);
+        if (user) {
+            users = users.filter((u) => u.name !== user.name);
+            io.emit("show message", "userLeft", user.name);
+            io.emit("updateUserList", users);
+        }
     });
 
-    function handleUserDisconnect(socket) {
-        if (socket.username) {
-            users = users.filter(user => user.name !== socket.username);
-            io.emit("show message", "userLeft", socket.username);
+    socket.on("l", (username) => {
+        const user = users.find((u) => u.name === username);
+        if (user) {
+            users = users.filter((u) => u.name !== username);
+            io.emit("show message", "userLeft", username);
             io.emit("updateUserList", users);
-            console.log(`${socket.username} disconnected`);
         }
-    }
+    });
+
+    socket.on("chat message", (username, message) => {
+        io.emit("show message", "newMessage", username, message);
+    });
 });
 
 const port = 8080;
