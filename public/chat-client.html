@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Chat Client</title>
-    <link rel="stylesheet" href="style.css"> <!-- Optional: Link to a CSS file for styling -->
+    <link rel="stylesheet" href="style.css"> <!-- Link to a CSS file for styling -->
     <script src="/socket.io/socket.io.js"></script>
     <script src="chat-client.js" defer></script> <!-- Load the chat-client.js -->
 </head>
@@ -12,29 +12,27 @@
     <div class="container">
         <div id="chats">
             <p>DIRECT MESSAGES</p>
-            <div id="users"></div>
+            <div id="users"></div> <!-- User list displayed here -->
         </div>
         <div id="curChat">
             <div id="chatHead">
                 <h1>Chat</h1>
-                <button id="leave">LEAVE</button>
+                <button id="leave">LEAVE</button> <!-- Button to leave chat -->
             </div>
-            <div id="messages"></div>
+            <div id="messages"></div> <!-- Chat messages displayed here -->
             <div id="typeArea">
                 <form id="messageForm">
                     <input type="text" id="messageInput" placeholder="Type your message..." required>
-                    <button id="send">SEND</button>
+                    <button id="send">SEND</button> <!-- Send button -->
                 </form>
             </div>
         </div>
         <div>
             <form id="usernameForm">
                 <input type="text" id="usernameInput" placeholder="Enter your username" required>
-                <button type="submit">Join Chat</button>
+                <button type="submit">Join Chat</button> <!-- Join button -->
             </form>
         </div>
     </div>
 </body>
 </html>
-
-

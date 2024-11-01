@@ -10,12 +10,8 @@ socket.on("updateUserList", (users) => {
         const userDiv = document.createElement('div');
         const profilePic = document.createElement('img');
         
-        // Set profile picture based on random number
-        if (user.randomNum % 2 === 0) {
-            profilePic.src = `https://randomuser.me/api/portraits/men/${user.randomNum}.jpg`;
-        } else {
-            profilePic.src = `https://randomuser.me/api/portraits/women/${user.randomNum}.jpg`;
-        }
+        profilePic.src = user.profilePic; // Use the profile picture from user object
+        profilePic.alt = user.name;
 
         userDiv.textContent = user.name;
         userDiv.prepend(profilePic);  // Add the profile picture before the username
@@ -37,11 +33,25 @@ document.getElementById('usernameForm').addEventListener('submit', function(e) {
     document.getElementById('usernameForm').style.display = 'none'; // Hide the username input after joining
 });
 
-// Optional: Handle message sending logic here
+// Handle sending chat messages
 document.getElementById('messageForm').addEventListener('submit', function(e) {
     e.preventDefault();
     const message = document.getElementById('messageInput').value;
-    // Emit message to server (you'll need to handle this on the server side)
-    // socket.emit('chat message', message);
+    
+    // Display message directly in the chat window
+    const messagesContainer = document.getElementById('messages');
+    const messageDiv = document.createElement('div');
+    messageDiv.textContent = message;  // You may want to format it more
+    messagesContainer.appendChild(messageDiv);
+
+    // Emit message to server
+    socket.emit('chat message', message);
     document.getElementById('messageInput').value = ''; // Clear the input after sending
+});
+
+// Optional: Handle user leaving logic
+document.getElementById('leave').addEventListener('click', () => {
+    // Emit leave message to the server
+    socket.emit('leave');
+    // Hide chat window logic here
 });
