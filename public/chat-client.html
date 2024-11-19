@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Client</title>
+    <style>
+        body {
+            background-color: #e5ddd5;
+            color: #000;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            font-size: 1.5em;
+        }
+        input, button {
+            font-size: 1.2em;
+        }
+        #usernameForm, #convo {
+            width: 90%;
+            max-width: 600px;
+            margin: 5vh auto;
+            text-align: center;
+        }
+        #usernameForm {
+            padding: 20px;
+            border: 2px solid #25D366;
+            background-color: #dcf8c6;
+            border-radius: 10px;
+        }
+        #convo {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+        }
+        #curChat, #messages {
+            width: 100%;
+            max-height: 50vh;
+            overflow-y: scroll;
+            border: 2px solid #25D366;
+            padding: 10px;
+            margin: 10px 0;
+            background-color: #e5ddd5;
+        }
+        .message {
+            padding: 8px;
+            border-radius: 5px;
+            margin: 5px 0;
+        }
+        .userDiv {
+            display: flex;
+            align-items: center;
+            margin: 5px;
+        }
+        .userDiv img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            margin-right: 10px;
+        }
+        .join { background-color: rgba(37, 211, 102, 0.5); }
+        .left { background-color: rgba(255, 193, 7, 0.5); }
+        .self { background-color: #dcf8c6; }
+        .other { background-color: #fff; }
+        #messageForm {
+            display: flex;
+            gap: 10px;
+        }
+        #messageInput {
+            flex: 1;
+        }
+        button {
+            background-color: #25D366;
+            color: #fff;
+            border: none;
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 5px;
+            font-size: 1.2em;
+        }
+        button:hover {
+            background-color: #128c7e;
+        }
+        #leave {
+            background-color: #f44336;
+        }
+        #leave:hover {
+            background-color: #d32f2f;
+        }
+    </style>
+    <script src="/socket.io/socket.io.js"></script>
+</head>
+<body>
+    <form id="usernameForm">
+        <h1>WeChat</h1>
+        <input type="text" id="usernameInput" placeholder="Enter your username" required>
+        <button type="submit">Join Chat</button>
+    </form>
+    
+    <div id="convo">
+        <div id="users"></div>
+        <div id="curChat">
+            <div id="messages"></div>
+        </div>
+        <form id="messageForm">
+            <input type="text" id="messageInput" placeholder="Type your message..." required>
+            <button type="submit">SEND</button>
+            <button type="button" id="leave">LEAVE</button>
+        </form>
+    </div>
+
+    <script>
+        const socket = io();
+        let username = "";
+
+        // Display user list
+        socket.on("updateUserList", (users) => {
+            const usersContainer = document.getElementById("users");
+            usersContainer.innerHTML = "";
+            users.forEach(user => {
+                const userDiv = document.createElement("div");
+                userDiv.classList.add("userDiv");
+                userDiv.innerHTML = `<img src="${user.profilePic}" alt="Profile"> ${user.name}`;
+                usersContainer.appendChild(userDiv);
+            });
+        });
+
+        // Display different message types
+        socket.on("show message", (type, who, what, time) => {
+            const messageContainer = document.createElement("div");
+            messageContainer.classList.add("message");
+
+            if (type === "userJoined") {
+                messageContainer.classList.add("join");
+                messageContainer.innerText = `${who} has joined the chat!`;
+            } else if (type === "userLeft") {
+                messageContainer.classList.add("left");
+                messageContainer.innerText = `${who} has left the chat!`;
+            } else if (type === "newMessage") {
+                const sender = document.createElement("span");
+                sender.innerText = `${who}: `;
+                const messageText = document.createElement("span");
+                messageText.innerText = what;
+                const messageTime = document.createElement("span");
+                messageTime.innerText = ` (${time})`;
+                messageTime.style.fontSize = "0.8em"; // Smaller font for time
+
+                messageContainer.appendChild(sender);
+                messageContainer.appendChild(messageText);
+                messageContainer.appendChild(messageTime);
+                messageContainer.classList.add(who === username ? "self" : "other");
+            }
+            document.getElementById("messages").appendChild(messageContainer);
+        });
+
+        // Join chat with username
+        document.getElementById("usernameForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            username = document.getElementById("usernameInput").value;
+            socket.emit("username", username);
+            document.getElementById("usernameForm").style.display = "none";
+            document.getElementById("convo").style.display = "flex";
+        });
+
+        // Leave chat
+        document.getElementById("leave").addEventListener("click", () => {
+            socket.emit("l", username);
+        });
+
+        // Send chat message
+        document.getElementById("messageForm").addEventListener("submit", (e) => {
+            e.preventDefault();
+            const message = document.getElementById("messageInput").value;
+            const currentTime = new Date().toLocaleTimeString(); // Get current time
+            socket.emit("chat message", username, message, currentTime);
+            document.getElementById("messageInput").value = "";
+        });
+    </script>
+</body>
+</html>
